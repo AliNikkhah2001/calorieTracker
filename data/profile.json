@@ -1,0 +1,8 @@
+{
+  "age": 22,
+  "gender": "Male",
+  "height_cm": 190,
+  "weight_kg": 105.0,
+  "activity": "Moderate",
+  "deficit": 1200
+}
