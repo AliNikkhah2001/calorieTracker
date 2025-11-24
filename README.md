@@ -1,16 +1,28 @@
-# WeightTracker Reflex App
+# Calorie & Weight Tracker
 
-This project replaces the original single-user Streamlit MVP with a multi-user Reflex web application backed by SQLite + SQLAlchemy. All tracking data now lives in a relational schema, users authenticate with username/password, and every profile/log is scoped per account.
+This repository now provides two runnable experiences:
 
-## Features
+- A **static browser app** in `docs/` that runs entirely on GitHub Pages (or any static host) using localStorage for data.
+- The original **Reflex + SQLite** prototype (under `weight_tracker/`) for users who want a server-backed experience.
 
-- Username/password authentication with salted PBKDF2 hashing.
-- Profile management with automatic BMR/TDEE calculations per user.
-- Daily logging for foods, exercises, and weights, including built-in MET values.
-- Shared + personal food dictionary stored in SQL and editable in the UI.
-- Dashboard pages (Today, Weight, Food DB) implemented with Reflex components.
+## GitHub Pages / Static App
 
-## Getting Started
+1. Push the repo to GitHub and enable Pages with the **`docs/` folder** as the source.
+2. Visit the published URL – everything runs in the browser, storing data locally.
+3. Features:
+   - Profile form with Mifflin-St-Jeor BMR, TDEE, and target intake calculations.
+   - Food logging using the Atwater factors (protein/carbs/alcohol/fiber) plus a searchable food database pulled from `docs/food_db.csv`.
+   - Exercise logging with MET-based calorie burn calculations.
+   - Daily deficit summary, macro totals, and charts (intake vs burn; actual vs predicted weight) powered by Chart.js.
+   - Weight prediction uses cumulative deficit ÷ 3,500 kcal × 0.4536 kg to estimate trends.
+
+To test locally, open `docs/index.html` in a browser or start a lightweight server:
+
+```bash
+python -m http.server --directory docs 8000
+```
+
+## Reflex / SQLite App
 
 1. **Install dependencies**
 
@@ -35,15 +47,19 @@ This project replaces the original single-user Streamlit MVP with a multi-user R
 ## Project Structure
 
 ```
-rxconfig.py            # Reflex configuration
+docs/                 # Static GitHub Pages app (Chart.js + PicoCSS + localStorage)
+  index.html
+  app.js
+  style.css
+  food_db.csv
+rxconfig.py           # Reflex configuration
 weight_tracker/
-  weight_tracker.py    # Reflex UI + routing
-  db.py                # SQLAlchemy engine/session helpers
-  models.py            # ORM models (users, profiles, logs, foods)
-  services.py          # Business logic + seeding utilities
-  state.py             # Reflex AppState (auth, forms, logging)
-data/app.db            # Created on first run
+  weight_tracker.py   # Reflex UI + routing
+  db.py               # SQLAlchemy engine/session helpers
+  models.py           # ORM models (users, profiles, logs, foods)
+  services.py         # Business logic + seeding utilities
+  state.py            # Reflex AppState (auth, forms, logging)
+data/app.db           # Created on first Reflex run
 ```
 
-Run `python3 -m py_compile app.py weight_tracker/*.py rxconfig.py` if you want a quick syntax check before starting the dev server.
-# calorieTracker
+Run `python3 -m py_compile weight_tracker/*.py rxconfig.py` if you want a quick syntax check before starting the Reflex dev server.

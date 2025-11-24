@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Calorie & Weight Tracker</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="container">
+      <h1>Calorie &amp; Weight Tracker</h1>
+      <p class="muted">Track intake, workouts, deficit, and weight predictions directly in the browser.</p>
+    </header>
+
+    <main class="container">
+      <section class="grid" id="profile-section">
+        <article>
+          <header>
+            <h2>Profile</h2>
+            <p>Used for BMR, TDEE, and exercise burn estimates.</p>
+          </header>
+          <form id="profile-form">
+            <div class="grid">
+              <label>Age<input type="number" id="age" min="10" max="120" required /></label>
+              <label>Height (cm)<input type="number" id="height" min="80" max="230" required /></label>
+              <label>Weight (kg)<input type="number" id="weight" step="0.1" min="20" max="300" required /></label>
+            </div>
+            <div class="grid">
+              <label>Gender
+                <select id="gender">
+                  <option>Male</option>
+                  <option>Female</option>
+                </select>
+              </label>
+              <label>Activity Level
+                <select id="activity">
+                  <option value="1.2">Sedentary (1.2)</option>
+                  <option value="1.375">Light (1.375)</option>
+                  <option value="1.55">Moderate (1.55)</option>
+                  <option value="1.725">Intense (1.725)</option>
+                  <option value="1.9">Extra (1.9)</option>
+                </select>
+              </label>
+              <label>Daily Deficit Goal (kcal)<input type="number" id="deficit" min="0" max="2000" step="50" /></label>
+            </div>
+            <footer>
+              <button type="submit">Save profile</button>
+            </footer>
+          </form>
+          <div id="profile-metrics" class="metric-card"></div>
+        </article>
+
+        <article>
+          <header class="flex-between">
+            <div>
+              <h2>Daily Log</h2>
+              <p>Select a date to view or edit entries.</p>
+            </div>
+            <label>Date<input type="date" id="log-date" /></label>
+          </header>
+          <div class="grid">
+            <article class="subcard">
+              <header class="flex-between"><h3>Add Food</h3><small id="food-db-count"></small></header>
+              <label>Choose food
+                <select id="food-select"></select>
+              </label>
+              <label>Quantity<input type="number" id="food-qty" min="0" step="0.1" /></label>
+              <label>Or enter custom name<input type="text" id="food-name" placeholder="Custom food" /></label>
+              <div class="grid">
+                <label>Protein (g)<input type="number" id="food-protein" min="0" step="0.1" /></label>
+                <label>Fat (g)<input type="number" id="food-fat" min="0" step="0.1" /></label>
+                <label>Carbs (g)<input type="number" id="food-carbs" min="0" step="0.1" /></label>
+                <label>Alcohol (g)<input type="number" id="food-alcohol" min="0" step="0.1" /></label>
+                <label>Fiber (g)<input type="number" id="food-fiber" min="0" step="0.1" /></label>
+                <label>Calories (override)<input type="number" id="food-kcal" min="0" step="1" /></label>
+              </div>
+              <button id="add-food">Add food</button>
+              <small>Calories auto-calc via Atwater factors when left blank.</small>
+            </article>
+
+            <article class="subcard">
+              <header><h3>Add Exercise</h3></header>
+              <label>Type / MET value
+                <select id="exercise-type"></select>
+              </label>
+              <label>Duration (minutes)<input type="number" id="exercise-mins" min="1" step="1" /></label>
+              <button id="add-exercise">Add exercise</button>
+              <small>Calories/min = (MET × 3.5 × weight) / 200</small>
+            </article>
+          </div>
+        </article>
+      </section>
+
+      <section class="grid">
+        <article>
+          <header class="flex-between"><h2>Food Log</h2><span id="intake-total" class="pill"></span></header>
+          <table id="food-table">
+            <thead><tr><th>Food</th><th>Qty</th><th>kcal</th><th>P</th><th>F</th><th>C</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </article>
+        <article>
+          <header class="flex-between"><h2>Exercise Log</h2><span id="burn-total" class="pill"></span></header>
+          <table id="exercise-table">
+            <thead><tr><th>Type</th><th>Mins</th><th>kcal</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </article>
+      </section>
+
+      <section class="grid">
+        <article>
+          <header><h2>Summary &amp; Deficit</h2></header>
+          <div id="summary"></div>
+          <canvas id="calorie-chart" height="200"></canvas>
+        </article>
+        <article>
+          <header class="flex-between">
+            <h2>Weight Log &amp; Prediction</h2>
+            <div class="grid compact">
+              <label>Weight (kg)<input type="number" id="weight-entry" step="0.1" /></label>
+              <button id="add-weight">Log weight</button>
+            </div>
+          </header>
+          <table id="weight-table">
+            <thead><tr><th>Date</th><th>Actual (kg)</th><th>Predicted (kg)</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <canvas id="weight-chart" height="200"></canvas>
+        </article>
+      </section>
+    </main>
+
+    <footer class="container muted" style="text-align:center; margin:2rem auto;">
+      <small>Data is stored locally in your browser. Export coming soon.</small>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
