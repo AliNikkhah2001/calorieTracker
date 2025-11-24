@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calorie & Weight Tracker</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <script type="module" src="src/app.js" defer></script>
+</head>
+<body>
+  <header class="hero">
+    <div>
+      <h1>Calorie &amp; Weight Tracker</h1>
+      <p>Track meals, workouts, energy balance, and weight predictions using science-backed formulas.</p>
+    </div>
+    <div class="cta-row">
+      <button id="save-profile">Save profile</button>
+      <button id="reset-data" class="ghost">Reset data</button>
+    </div>
+  </header>
+
+  <main class="grid">
+    <section class="card" id="profile-card">
+      <div class="card-header">
+        <h2>Profile</h2>
+        <p>Used for BMR (Mifflin-St-Jeor), TDEE, and predictions.</p>
+      </div>
+      <div class="form-grid">
+        <label>Age<input type="number" id="age" min="10" max="120" /></label>
+        <label>Gender<select id="gender"><option>Male</option><option>Female</option></select></label>
+        <label>Height (cm)<input type="number" id="height" min="50" max="260" /></label>
+        <label>Weight (kg)<input type="number" id="weight" min="20" max="400" /></label>
+        <label>Activity level<select id="activity"></select></label>
+        <label>Daily deficit goal (kcal)<input type="number" id="deficit" min="0" max="2000" /></label>
+      </div>
+      <div class="metrics" id="profile-metrics"></div>
+    </section>
+
+    <section class="card" id="food-card">
+      <div class="card-header">
+        <h2>Food log</h2>
+        <p>Use Atwater factors (4/4/9/7 kcal per g) to compute intake.</p>
+      </div>
+      <div class="form-grid">
+        <label>Date<input type="date" id="food-date" /></label>
+        <label>Food<select id="food-select"></select></label>
+        <label>Qty<input type="number" id="food-qty" min="0" step="0.1" value="1" /></label>
+        <label>Name (custom)<input type="text" id="food-name" placeholder="Custom food" /></label>
+        <label>Measure<input type="text" id="food-measure" placeholder="1 serving" /></label>
+        <label>kcal<input type="number" id="food-kcal" min="0" step="1" /></label>
+        <label>Protein (g)<input type="number" id="food-protein" min="0" step="0.1" /></label>
+        <label>Fat (g)<input type="number" id="food-fat" min="0" step="0.1" /></label>
+        <label>Carbs (g)<input type="number" id="food-carbs" min="0" step="0.1" /></label>
+        <label>Alcohol (g)<input type="number" id="food-alcohol" min="0" step="0.1" /></label>
+        <label>Fiber (g)<input type="number" id="food-fiber" min="0" step="0.1" /></label>
+        <button id="add-food">Add food</button>
+        <button id="save-food-template" class="ghost">Save as template</button>
+      </div>
+      <div class="table-wrapper">
+        <table id="food-log-table">
+          <thead><tr><th>Food</th><th>Qty</th><th>kcal</th><th>P</th><th>F</th><th>C</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card" id="exercise-card">
+      <div class="card-header">
+        <h2>Exercise log</h2>
+        <p>Calories/min = MET × 3.5 × weight(kg) / 200.</p>
+      </div>
+      <div class="form-grid">
+        <label>Date<input type="date" id="exercise-date" /></label>
+        <label>Type<select id="exercise-type"></select></label>
+        <label>Duration (minutes)<input type="number" id="exercise-mins" min="0" step="1" value="30" /></label>
+        <label>Start<input type="time" id="exercise-start" /></label>
+        <label>End<input type="time" id="exercise-end" /></label>
+        <button id="add-exercise">Add exercise</button>
+      </div>
+      <div class="table-wrapper">
+        <table id="exercise-log-table">
+          <thead><tr><th>Type</th><th>Mins</th><th>kcal</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card" id="weight-card">
+      <div class="card-header">
+        <h2>Weight</h2>
+        <p>Log actuals to compare with predicted change from calorie deficit.</p>
+      </div>
+      <div class="form-grid">
+        <label>Date<input type="date" id="weight-date" /></label>
+        <label>Weight (kg)<input type="number" id="weight-value" min="20" max="400" step="0.1" /></label>
+        <button id="add-weight">Log weight</button>
+      </div>
+      <div class="table-wrapper">
+        <table id="weight-table">
+          <thead><tr><th>Date</th><th>Weight (kg)</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card" id="summary-card">
+      <div class="card-header">
+        <h2>Today's energy balance</h2>
+        <p>Intake vs burn, net, and remaining relative to your goal.</p>
+      </div>
+      <div class="pill-grid" id="summary-grid"></div>
+    </section>
+
+    <section class="card" id="charts-card">
+      <div class="card-header">
+        <h2>Trends &amp; predictions</h2>
+        <p>Daily intake/burn and actual vs predicted weight.</p>
+      </div>
+      <div class="chart-wrapper">
+        <canvas id="calorie-chart"></canvas>
+      </div>
+      <div class="chart-wrapper">
+        <canvas id="weight-chart"></canvas>
+      </div>
+    </section>
+
+    <section class="card" id="food-db-card">
+      <div class="card-header">
+        <h2>Food database</h2>
+        <p>Starter foods you can reuse; customize and save your own.</p>
+      </div>
+      <div class="table-wrapper">
+        <table id="food-db-table">
+          <thead><tr><th>Name</th><th>Measure</th><th>kcal</th><th>P</th><th>F</th><th>C</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Energy intake uses Atwater factors (4/4/9/7 kcal for protein/carbs/fat/alcohol). BMR via Mifflin-St-Jeor; TDEE applies activity multiplier; exercise burn uses METs; predicted weight change uses 3,500 kcal ≈ 1 lb (0.4536 kg).</p>
+  </footer>
+</body>
+</html>
