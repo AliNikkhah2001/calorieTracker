@@ -1,0 +1,99 @@
+body {
+  background: #f6f7fb;
+}
+
+header h1 {
+  margin-bottom: 0.2rem;
+}
+
+.muted {
+  color: #6b7280;
+}
+
+.metric-card {
+  background: #0f172a;
+  color: #e5e7eb;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.metric {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background: rgba(15, 23, 42, 0.05);
+  border: 1px dashed rgba(15, 23, 42, 0.15);
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.subcard {
+  background: white;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.04);
+}
+
+#summary p {
+  margin: 0.1rem 0;
+}
+
+.pill {
+  background: #e5e7eb;
+  color: #111827;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+}
+
+.grid.compact {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  align-items: end;
+  gap: 0.5rem;
+}
+
+#food-table tbody tr:nth-child(odd),
+#exercise-table tbody tr:nth-child(odd),
+#weight-table tbody tr:nth-child(odd) {
+  background: #f3f4f6;
+}
+
+#food-table td button,
+#exercise-table td button {
+  --pico-button-background-color: #f87171;
+  --pico-button-border-color: #f87171;
+  --pico-button-color: white;
+}
+
+#fasting-status {
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eef2ff;
+  color: #312e81;
+}
+
+#streaks {
+  margin-top: 1rem;
+  border: 1px solid #e5e7eb;
+}
+
+#detox-list label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
