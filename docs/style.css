@@ -1,0 +1,273 @@
+:root {
+  color-scheme: light;
+}
+
+body {
+  background: #f8fafc;
+  color: #0f172a;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: 'Playfair Display', 'Inter', system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.hero {
+  padding: 2rem 0 1rem;
+}
+
+.kicker {
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.9rem;
+  color: #475569;
+  margin-bottom: 0.2rem;
+}
+
+.tab-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.tab {
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #0f172a;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 5px 15px rgba(15, 23, 42, 0.06);
+}
+
+.tab.active {
+  background: linear-gradient(135deg, #f8fafc 0%, #fff 100%);
+  border-color: #cbd5e1;
+  box-shadow: 0 12px 25px rgba(15, 23, 42, 0.08);
+  font-weight: 600;
+}
+
+.tab-panel {
+  display: none;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  padding: 1.25rem;
+  box-shadow: 0 15px 40px rgba(15, 23, 42, 0.05);
+  margin-bottom: 1rem;
+}
+
+.subcard {
+  background: #ffffff;
+  padding: 1rem;
+  border-radius: 0.85rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+}
+
+header h1 {
+  margin-bottom: 0.25rem;
+}
+
+.muted {
+  color: #6b7280;
+}
+
+.metric-card {
+  background: #0f172a;
+  color: #e5e7eb;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.metric {
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background: rgba(15, 23, 42, 0.05);
+  border: 1px dashed rgba(15, 23, 42, 0.12);
+}
+
+.chart-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+.chart-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.9rem;
+  padding: 0.85rem;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+  max-width: 540px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.chart-title {
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-scroll table {
+  min-width: 520px;
+}
+
+.chart-box canvas {
+  width: 100% !important;
+  max-height: 320px;
+  display: block;
+  margin: 0 auto;
+}
+
+.bold-metric {
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.grid.compact {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  align-items: end;
+  gap: 0.5rem;
+}
+
+.pill {
+  background: #e2e8f0;
+  color: #0f172a;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.95rem;
+}
+
+#food-table tbody tr:nth-child(odd),
+#exercise-table tbody tr:nth-child(odd),
+#weight-table tbody tr:nth-child(odd) {
+  background: #f1f5f9;
+}
+
+#food-table td button,
+#exercise-table td button {
+  --pico-button-background-color: #f87171;
+  --pico-button-border-color: #f87171;
+  --pico-button-color: white;
+}
+
+#fasting-status {
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eef2ff;
+  color: #312e81;
+}
+
+.countdown {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+#detox-list label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+#detox-list {
+  align-content: start;
+}
+
+#snapshot-metrics .metric {
+  background: #fff7ed;
+  border-color: #fed7aa;
+}
+
+.detox-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 3fr) 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.detox-actions {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 0.85rem;
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+}
+
+@media (max-width: 900px) {
+  .detox-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  body {
+    padding: 0 0.5rem;
+  }
+
+  .hero {
+    padding: 1.25rem 0 0.5rem;
+  }
+
+  .card {
+    padding: 1rem;
+  }
+
+  .tab-bar {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+
+  .chart-box {
+    max-width: 100%;
+  }
+
+  .table-scroll table {
+    min-width: 420px;
+  }
+}
+
+footer small {
+  color: #94a3b8;
+}

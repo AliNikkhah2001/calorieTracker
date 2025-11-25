@@ -1,0 +1,8 @@
+* text=auto
+*.svg text
+*.csv text
+*.json text
+*.webmanifest text
+*.js text
+*.html text
+*.css text

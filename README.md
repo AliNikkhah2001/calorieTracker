@@ -1,16 +1,30 @@
-# WeightTracker Reflex App
+# Calorie & Weight Tracker
 
-This project replaces the original single-user Streamlit MVP with a multi-user Reflex web application backed by SQLite + SQLAlchemy. All tracking data now lives in a relational schema, users authenticate with username/password, and every profile/log is scoped per account.
+This repository now provides two runnable experiences:
 
-## Features
+- A **static browser app** in `docs/` that runs entirely on GitHub Pages (or any static host) using localStorage for data.
+- The original **Reflex + SQLite** prototype (under `weight_tracker/`) for users who want a server-backed experience.
 
-- Username/password authentication with salted PBKDF2 hashing.
-- Profile management with automatic BMR/TDEE calculations per user.
-- Daily logging for foods, exercises, and weights, including built-in MET values.
-- Shared + personal food dictionary stored in SQL and editable in the UI.
-- Dashboard pages (Today, Weight, Food DB) implemented with Reflex components.
+## GitHub Pages / Static App
 
-## Getting Started
+1. Push the repo to GitHub and enable Pages with the **`docs/` folder** as the source.
+2. Visit the published URL – everything runs in the browser, storing data locally.
+3. Features:
+   - Multiple user profiles with Mifflin-St-Jeor BMR, TDEE, target intake calculations, and configurable fasting windows.
+   - Food logging using the Atwater factors (protein/carbs/alcohol/fiber) plus a categorized food database pulled from `docs/data.json` that you can edit directly.
+   - Exercise logging with MET-based calorie burn calculations sourced from the same JSON catalog.
+   - Daily deficit summary, macro totals, donut + running-deficit charts, fasting countdown, and a pie view of base burn vs. intake vs. exercise.
+   - Weight prediction using cumulative deficit ÷ 3,500 kcal × 0.4536 kg with weekly/monthly deltas and actual vs. predicted charting.
+   - Fasting and dopamine-detox streak tracking with customizable checklist items and daily compliance logging.
+   - Mobile-friendly layout tuned for iPhone/iPad breakpoints plus installable PWA support (manifest + offline cache via service worker). A vector `docs/icon.svg` keeps the repo free of binary image assets.
+
+To test locally, open `docs/index.html` in a browser or start a lightweight server:
+
+```bash
+python -m http.server --directory docs 8000
+```
+
+## Reflex / SQLite App
 
 1. **Install dependencies**
 
@@ -26,7 +40,7 @@ This project replaces the original single-user Streamlit MVP with a multi-user R
    reflex run
    ```
 
-   This launches the dev server, compiles frontend assets, and starts the backend API. The SQLite database is stored at `data/app.db`. Default food items are seeded from `data/food_db.csv` on first run.
+   This launches the dev server, compiles frontend assets, and starts the backend API. The SQLite database is stored at `data/app.db` (created automatically). The repo excludes sample CSV seeds to keep it binary-free; add your own CSV in `data/` before the first run if you want automatic seeding.
 
 3. **Optional: importing old CSV data**
 
@@ -35,15 +49,19 @@ This project replaces the original single-user Streamlit MVP with a multi-user R
 ## Project Structure
 
 ```
-rxconfig.py            # Reflex configuration
+docs/                 # Static GitHub Pages app (Chart.js + PicoCSS + localStorage)
+  index.html
+  app.js
+  style.css
+  data.json           # Editable food + activity catalog for the static app
+rxconfig.py           # Reflex configuration
 weight_tracker/
-  weight_tracker.py    # Reflex UI + routing
-  db.py                # SQLAlchemy engine/session helpers
-  models.py            # ORM models (users, profiles, logs, foods)
-  services.py          # Business logic + seeding utilities
-  state.py             # Reflex AppState (auth, forms, logging)
-data/app.db            # Created on first run
+  weight_tracker.py   # Reflex UI + routing
+  db.py               # SQLAlchemy engine/session helpers
+  models.py           # ORM models (users, profiles, logs, foods)
+  services.py         # Business logic + seeding utilities
+  state.py            # Reflex AppState (auth, forms, logging)
+data/app.db           # Created on first Reflex run (add your own CSV seeds to data/ if desired)
 ```
 
-Run `python3 -m py_compile app.py weight_tracker/*.py rxconfig.py` if you want a quick syntax check before starting the dev server.
-# calorieTracker
+Run `python3 -m py_compile weight_tracker/*.py rxconfig.py` if you want a quick syntax check before starting the Reflex dev server.

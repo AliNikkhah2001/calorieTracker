@@ -1,6 +1,9 @@
 __pycache__/
 *.db
+.zip
 .states
 assets/external/
 *.py[cod]
 .web
+data/*
+!data/.gitkeep

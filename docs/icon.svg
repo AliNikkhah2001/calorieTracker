@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-labelledby="title desc">
+  <title id="title">Calorie Tracker Icon</title>
+  <desc id="desc">Minimal dumbbell and flame for the calorie tracker PWA</desc>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1d4ed8" />
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="28" fill="#f8fafc" stroke="#0f172a" stroke-width="6" />
+  <path d="M60 128c0-18 12-32 36-40-8 12-4 22 2 28 10-6 20-17 22-32 20 22 8 60-20 68-22 6-40-8-40-24z" fill="url(#g)" stroke="#0f172a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+  <g fill="none" stroke="#0f172a" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M44 86h20m64 0h20" />
+    <path d="M76 66v40m40-40v40" />
+    <rect x="56" y="76" width="80" height="20" rx="6" />
+  </g>
+</svg>
