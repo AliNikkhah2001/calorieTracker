@@ -1,5 +1,4 @@
 {
-
   "foods": [
     {
       "category": "Drink",
@@ -2608,7 +2607,104 @@
       "protein": 0,
       "fat": 0,
       "carbs": 1
+    },
+    {
+      "category": "Meal",
+      "name": "Chelo kebab (Iranian saffron rice with kebab), 1 serving (340 g)",
+      "kcal": 410,
+      "protein": 29,
+      "fat": 9,
+      "carbs": 55
+    },
+    {
+      "category": "Meal",
+      "name": "Ghormeh sabzi (Persian herb stew), 1 serving (250 g)",
+      "kcal": 300,
+      "protein": 20,
+      "fat": 15,
+      "carbs": 20
+    },
+    {
+      "category": "Meal",
+      "name": "Fesenjan stew, 1 serving (285 g)",
+      "kcal": 380,
+      "protein": 9,
+      "fat": 22,
+      "carbs": 32
+    },
+    {
+      "category": "Soup",
+      "name": "Ash reshteh (Persian noodle soup), 1 serving (250 g)",
+      "kcal": 250,
+      "protein": 10,
+      "fat": 8,
+      "carbs": 35
+    },
+    {
+      "category": "Snack",
+      "name": "Kashk bademjan (Persian eggplant dip), 100 g",
+      "kcal": 122,
+      "protein": 13.8,
+      "fat": 4.5,
+      "carbs": 7.9
+    },
+    {
+      "category": "Snack",
+      "name": "Mirza Ghasemi (Persian eggplant and tomato), 1 cup",
+      "kcal": 138,
+      "protein": 8,
+      "fat": 7,
+      "carbs": 11
+    },
+    {
+      "category": "Dessert",
+      "name": "Baklava, 1 piece (78 g)",
+      "kcal": 334,
+      "protein": 5.2,
+      "fat": 22.6,
+      "carbs": 29.4
+    },
+    {
+      "category": "Dessert",
+      "name": "Halva, 20 g",
+      "kcal": 100,
+      "protein": 3,
+      "fat": 5,
+      "carbs": 11
+    },
+    {
+      "category": "Dessert",
+      "name": "Turkish Delight, 25 g",
+      "kcal": 90,
+      "protein": 0,
+      "fat": 1.2,
+      "carbs": 20
+    },
+    {
+      "category": "Dessert",
+      "name": "Chocolate cake with frosting, 1 slice",
+      "kcal": 506,
+      "protein": 5.7,
+      "fat": 22.6,
+      "carbs": 75.3
+    },
+    {
+      "category": "Dessert",
+      "name": "Cheesecake slice, 1 slice",
+      "kcal": 257,
+      "protein": 4.4,
+      "fat": 18,
+      "carbs": 20.4
+    },
+    {
+      "category": "Meal",
+      "name": "Basmati rice, 1 cup cooked",
+      "kcal": 210,
+      "protein": 4.4,
+      "fat": 0.5,
+      "carbs": 45.6
     }
+
   ],
   "activities": [
     {"category": "Cardio", "label": "Walking (3.5 METs)", "met": 3.5},
