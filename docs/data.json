@@ -1,19 +1,2614 @@
 {
+
   "foods": [
-    {"category": "Meal", "name": "Chicken breast, 100g", "kcal": 165, "protein": 31, "fat": 3.6, "carbs": 0},
-    {"category": "Meal", "name": "Salmon, 100g", "kcal": 208, "protein": 20, "fat": 13, "carbs": 0},
-    {"category": "Snack", "name": "Banana, medium", "kcal": 105, "protein": 1.3, "fat": 0.4, "carbs": 27},
-    {"category": "Drink", "name": "Black coffee", "kcal": 2, "protein": 0.3, "fat": 0, "carbs": 0.3},
-    {"category": "Drink", "name": "Whole milk, 1 cup", "kcal": 149, "protein": 7.7, "fat": 8, "carbs": 12},
-    {"category": "Snack", "name": "Greek yogurt, 170g", "kcal": 100, "protein": 17, "fat": 0, "carbs": 6},
-    {"category": "Meal", "name": "Brown rice, 1 cup cooked", "kcal": 216, "protein": 5, "fat": 1.8, "carbs": 45},
-    {"category": "Meal", "name": "Quinoa, 1 cup cooked", "kcal": 222, "protein": 8, "fat": 3.6, "carbs": 39},
-    {"category": "Snack", "name": "Almonds, 28g", "kcal": 164, "protein": 6, "fat": 14, "carbs": 6},
-    {"category": "Meal", "name": "Egg, large", "kcal": 72, "protein": 6.3, "fat": 4.8, "carbs": 0.4},
-    {"category": "Snack", "name": "Apple, medium", "kcal": 95, "protein": 0.5, "fat": 0.3, "carbs": 25},
-    {"category": "Snack", "name": "Protein shake (whey, 1 scoop)", "kcal": 120, "protein": 24, "fat": 1.5, "carbs": 3},
-    {"category": "Meal", "name": "Turkey sandwich", "kcal": 320, "protein": 25, "fat": 8, "carbs": 38},
-    {"category": "Snack", "name": "Dark chocolate, 30g", "kcal": 170, "protein": 2, "fat": 12, "carbs": 14}
+    {
+      "category": "Drink",
+      "name": "Cows' milk, whole (1 qt)",
+      "kcal": 660,
+      "protein": 32,
+      "fat": 40,
+      "carbs": 48
+    },
+    {
+      "category": "Drink",
+      "name": "Cows' milk, skim (1 qt)",
+      "kcal": 360,
+      "protein": 36,
+      "fat": 0,
+      "carbs": 52
+    },
+    {
+      "category": "Drink",
+      "name": "Buttermilk, cultured (1 cup)",
+      "kcal": 127,
+      "protein": 9,
+      "fat": 5,
+      "carbs": 13
+    },
+    {
+      "category": "Drink",
+      "name": "Evaporated milk (1 cup)",
+      "kcal": 345,
+      "protein": 16,
+      "fat": 20,
+      "carbs": 24
+    },
+    {
+      "category": "Drink",
+      "name": "Fortified milk (6 cups)",
+      "kcal": 1373,
+      "protein": 89,
+      "fat": 42,
+      "carbs": 119
+    },
+    {
+      "category": "Drink",
+      "name": "Powdered whole milk (1 cup)",
+      "kcal": 515,
+      "protein": 27,
+      "fat": 28,
+      "carbs": 39
+    },
+    {
+      "category": "Drink",
+      "name": "Skim milk, instant (1 1/3 cups)",
+      "kcal": 290,
+      "protein": 30,
+      "fat": 0,
+      "carbs": 42
+    },
+    {
+      "category": "Drink",
+      "name": "Skim milk, non-instant (2/3 cup)",
+      "kcal": 290,
+      "protein": 30,
+      "fat": 0,
+      "carbs": 42
+    },
+    {
+      "category": "Drink",
+      "name": "Goats' milk, fresh (1 cup)",
+      "kcal": 165,
+      "protein": 8,
+      "fat": 10,
+      "carbs": 11
+    },
+    {
+      "category": "Snack",
+      "name": "Malted milk (2 cups)",
+      "kcal": 690,
+      "protein": 24,
+      "fat": 24,
+      "carbs": 70
+    },
+    {
+      "category": "Snack",
+      "name": "Cocoa (1 cup)",
+      "kcal": 235,
+      "protein": 8,
+      "fat": 11,
+      "carbs": 26
+    },
+    {
+      "category": "Snack",
+      "name": "Yogurt, partially skimmed milk (1 cup)",
+      "kcal": 128,
+      "protein": 18,
+      "fat": 4,
+      "carbs": 13
+    },
+    {
+      "category": "Snack",
+      "name": "Milk pudding (cornstarch, 1 cup)",
+      "kcal": 275,
+      "protein": 9,
+      "fat": 10,
+      "carbs": 40
+    },
+    {
+      "category": "Snack",
+      "name": "Custard, baked (1 cup)",
+      "kcal": 285,
+      "protein": 13,
+      "fat": 14,
+      "carbs": 28
+    },
+    {
+      "category": "Snack",
+      "name": "Ice cream, commercial (1 cup)",
+      "kcal": 300,
+      "protein": 6,
+      "fat": 18,
+      "carbs": 29
+    },
+    {
+      "category": "Snack",
+      "name": "Ice milk, commercial (1 cup)",
+      "kcal": 275,
+      "protein": 9,
+      "fat": 10,
+      "carbs": 32
+    },
+    {
+      "category": "Drink",
+      "name": "Light cream or half-and-half (1/2 cup)",
+      "kcal": 170,
+      "protein": 4,
+      "fat": 15,
+      "carbs": 5
+    },
+    {
+      "category": "Drink",
+      "name": "Heavy cream or whipping cream (1/2 cup)",
+      "kcal": 430,
+      "protein": 2,
+      "fat": 44,
+      "carbs": 3
+    },
+    {
+      "category": "Snack",
+      "name": "Cottage cheese, creamed (1 cup)",
+      "kcal": 240,
+      "protein": 30,
+      "fat": 11,
+      "carbs": 6
+    },
+    {
+      "category": "Snack",
+      "name": "Cottage cheese, uncreamed (1 cup)",
+      "kcal": 195,
+      "protein": 38,
+      "fat": 0,
+      "carbs": 6
+    },
+    {
+      "category": "Snack",
+      "name": "Cheddar/American cheese (1-in cube)",
+      "kcal": 70,
+      "protein": 4,
+      "fat": 6,
+      "carbs": 0
+    },
+    {
+      "category": "Snack",
+      "name": "Cheddar cheese, grated (1/2 cup)",
+      "kcal": 226,
+      "protein": 14,
+      "fat": 19,
+      "carbs": 1
+    },
+    {
+      "category": "Snack",
+      "name": "Cream cheese (1 oz)",
+      "kcal": 105,
+      "protein": 2,
+      "fat": 11,
+      "carbs": 1
+    },
+    {
+      "category": "Snack",
+      "name": "Processed cheese (1 oz)",
+      "kcal": 105,
+      "protein": 7,
+      "fat": 9,
+      "carbs": 0
+    },
+    {
+      "category": "Snack",
+      "name": "Roquefort cheese (1 oz)",
+      "kcal": 105,
+      "protein": 6,
+      "fat": 9,
+      "carbs": 0
+    },
+    {
+      "category": "Snack",
+      "name": "Swiss cheese (1 oz)",
+      "kcal": 105,
+      "protein": 7,
+      "fat": 8,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Eggs, boiled/poached/raw (2)",
+      "kcal": 150,
+      "protein": 12,
+      "fat": 12,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Eggs, scrambled/omelet/fried (2)",
+      "kcal": 220,
+      "protein": 13,
+      "fat": 16,
+      "carbs": 1
+    },
+    {
+      "category": "Meal",
+      "name": "Egg yolks only (2)",
+      "kcal": 120,
+      "protein": 6,
+      "fat": 10,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Butter (1 Tbsp)",
+      "kcal": 100,
+      "protein": 0,
+      "fat": 11,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Butter (1/2 cup)",
+      "kcal": 800,
+      "protein": 0,
+      "fat": 90,
+      "carbs": 1
+    },
+    {
+      "category": "Meal",
+      "name": "Hydrogenated cooking fat (1/2 cup)",
+      "kcal": 665,
+      "protein": 0,
+      "fat": 100,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Lard (1/2 cup)",
+      "kcal": 992,
+      "protein": 0,
+      "fat": 110,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Margarine (1/2 cup)",
+      "kcal": 806,
+      "protein": 0,
+      "fat": 91,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Margarine (1 Tbsp)",
+      "kcal": 100,
+      "protein": 0,
+      "fat": 11,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Mayonnaise (1 Tbsp)",
+      "kcal": 110,
+      "protein": 0,
+      "fat": 12,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Corn/soy/peanut/cottonseed oil (1 Tbsp)",
+      "kcal": 125,
+      "protein": 0,
+      "fat": 14,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Olive oil (1 Tbsp)",
+      "kcal": 125,
+      "protein": 0,
+      "fat": 14,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Safflower/sunflower/walnut oil (1 Tbsp)",
+      "kcal": 125,
+      "protein": 0,
+      "fat": 14,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "French salad dressing (1 Tbsp)",
+      "kcal": 60,
+      "protein": 0,
+      "fat": 6,
+      "carbs": 2
+    },
+    {
+      "category": "Meal",
+      "name": "Thousand Island dressing (1 Tbsp)",
+      "kcal": 75,
+      "protein": 0,
+      "fat": 8,
+      "carbs": 1
+    },
+    {
+      "category": "Meal",
+      "name": "Salt pork (2 oz)",
+      "kcal": 470,
+      "protein": 3,
+      "fat": 55,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Bacon, crisp drained (2 slices)",
+      "kcal": 95,
+      "protein": 4,
+      "fat": 8,
+      "carbs": 1
+    },
+    {
+      "category": "Meal",
+      "name": "Beef chuck, pot-roasted (3 oz)",
+      "kcal": 245,
+      "protein": 23,
+      "fat": 16,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Hamburger, commercial (3 oz)",
+      "kcal": 245,
+      "protein": 21,
+      "fat": 17,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Ground lean beef (3 oz)",
+      "kcal": 185,
+      "protein": 24,
+      "fat": 10,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Roast beef (3 oz)",
+      "kcal": 148,
+      "protein": 23,
+      "fat": 2.4,
+      "carbs": 6.1
+    },
+    {
+      "category": "Meal",
+      "name": "Roast beef, oven-cooked (3 oz)",
+      "kcal": 390,
+      "protein": 16,
+      "fat": 36,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Sirloin steak (3 oz)",
+      "kcal": 330,
+      "protein": 20,
+      "fat": 27,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Lean round steak (3 oz)",
+      "kcal": 220,
+      "protein": 24,
+      "fat": 12,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Corned beef (3 oz)",
+      "kcal": 185,
+      "protein": 22,
+      "fat": 10,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Corned beef hash, canned (3 oz)",
+      "kcal": 120,
+      "protein": 12,
+      "fat": 8,
+      "carbs": 6
+    },
+    {
+      "category": "Meal",
+      "name": "Dried or chipped beef (2 oz)",
+      "kcal": 115,
+      "protein": 19,
+      "fat": 4,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Pot pie (4.5-inch diameter)",
+      "kcal": 480,
+      "protein": 18,
+      "fat": 28,
+      "carbs": 32
+    },
+    {
+      "category": "Meal",
+      "name": "Beef stew with vegetables (1 cup)",
+      "kcal": 185,
+      "protein": 15,
+      "fat": 10,
+      "carbs": 15
+    },
+    {
+      "category": "Meal",
+      "name": "Chicken, broiled (3 oz)",
+      "kcal": 185,
+      "protein": 23,
+      "fat": 9,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Chicken, fried (3 oz)",
+      "kcal": 245,
+      "protein": 25,
+      "fat": 15,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Chicken, roasted (3.5 oz)",
+      "kcal": 290,
+      "protein": 25,
+      "fat": 20,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Chicken livers, fried (3 medium)",
+      "kcal": 140,
+      "protein": 22,
+      "fat": 14,
+      "carbs": 2.3
+    },
+    {
+      "category": "Meal",
+      "name": "Duck, domestic (3.5 oz)",
+      "kcal": 370,
+      "protein": 16,
+      "fat": 28,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Lamb chop, broiled (4 oz)",
+      "kcal": 480,
+      "protein": 24,
+      "fat": 35,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Lamb leg, roasted (3 oz)",
+      "kcal": 314,
+      "protein": 20,
+      "fat": 14,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Lamb shoulder, braised (3 oz)",
+      "kcal": 285,
+      "protein": 18,
+      "fat": 23,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Pork chop (3.5 oz)",
+      "kcal": 260,
+      "protein": 16,
+      "fat": 21,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Ham, cured pan-broiled (3 oz)",
+      "kcal": 290,
+      "protein": 16,
+      "fat": 22,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Ham, luncheon meat (2 oz)",
+      "kcal": 170,
+      "protein": 13,
+      "fat": 13,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Ham, canned spiced (2 oz)",
+      "kcal": 165,
+      "protein": 8,
+      "fat": 14,
+      "carbs": 1
+    },
+    {
+      "category": "Meal",
+      "name": "Pork roast (3 oz)",
+      "kcal": 310,
+      "protein": 21,
+      "fat": 24,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Pork sausage, bulk (3.5 oz)",
+      "kcal": 475,
+      "protein": 18,
+      "fat": 44,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Turkey, roasted (3.5 oz)",
+      "kcal": 265,
+      "protein": 27,
+      "fat": 15,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Veal cutlet, broiled (3 oz)",
+      "kcal": 185,
+      "protein": 23,
+      "fat": 9,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Veal roast (3 oz)",
+      "kcal": 305,
+      "protein": 13,
+      "fat": 14,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Clams, steamed or canned (3 oz)",
+      "kcal": 87,
+      "protein": 12,
+      "fat": 1,
+      "carbs": 2
+    },
+    {
+      "category": "Meal",
+      "name": "Cod, broiled (3.5 oz)",
+      "kcal": 170,
+      "protein": 28,
+      "fat": 5,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Crab meat, cooked (3 oz)",
+      "kcal": 90,
+      "protein": 14,
+      "fat": 2,
+      "carbs": 1
+    },
+    {
+      "category": "Meal",
+      "name": "Fish sticks, breaded fried (5 sticks)",
+      "kcal": 200,
+      "protein": 19,
+      "fat": 10,
+      "carbs": 8
+    },
+    {
+      "category": "Meal",
+      "name": "Flounder, baked (3.5 oz)",
+      "kcal": 200,
+      "protein": 30,
+      "fat": 8,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Haddock, fried (3 oz)",
+      "kcal": 135,
+      "protein": 16,
+      "fat": 5,
+      "carbs": 6
+    },
+    {
+      "category": "Meal",
+      "name": "Halibut, broiled (3.5 oz)",
+      "kcal": 182,
+      "protein": 26,
+      "fat": 8,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Herring, kippered (1 small)",
+      "kcal": 211,
+      "protein": 22,
+      "fat": 13,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Lobster, steamed (100 g)",
+      "kcal": 92,
+      "protein": 18,
+      "fat": 1,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Mackerel, canned (3 oz)",
+      "kcal": 155,
+      "protein": 18,
+      "fat": 9,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Oysters, raw (6-8 medium)",
+      "kcal": 85,
+      "protein": 8,
+      "fat": 2,
+      "carbs": 3
+    },
+    {
+      "category": "Meal",
+      "name": "Oyster stew with milk (1 cup)",
+      "kcal": 200,
+      "protein": 11,
+      "fat": 12,
+      "carbs": 11
+    },
+    {
+      "category": "Meal",
+      "name": "Salmon, canned (3 oz)",
+      "kcal": 120,
+      "protein": 17,
+      "fat": 5,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Sardines, canned (3 oz)",
+      "kcal": 180,
+      "protein": 22,
+      "fat": 9,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Scallops, breaded fried (3.5 oz)",
+      "kcal": 104,
+      "protein": 18,
+      "fat": 8,
+      "carbs": 10
+    },
+    {
+      "category": "Meal",
+      "name": "Shad, baked (3 oz)",
+      "kcal": 170,
+      "protein": 20,
+      "fat": 10,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Shrimp, steamed (3 oz)",
+      "kcal": 110,
+      "protein": 23,
+      "fat": 1,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Swordfish, broiled (100 g)",
+      "kcal": 180,
+      "protein": 27,
+      "fat": 6,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Tuna, canned drained (3 oz)",
+      "kcal": 170,
+      "protein": 25,
+      "fat": 7,
+      "carbs": 0
+    },
+    {
+      "category": "Snack",
+      "name": "Artichoke, globe (1 large)",
+      "kcal": 44,
+      "protein": 2,
+      "fat": 0,
+      "carbs": 10
+    },
+    {
+      "category": "Snack",
+      "name": "Asparagus, green (6 spears)",
+      "kcal": 18,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 3
+    },
+    {
+      "category": "Snack",
+      "name": "Beans, green snap (1 cup)",
+      "kcal": 25,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 6
+    },
+    {
+      "category": "Meal",
+      "name": "Lima beans, green (1 cup)",
+      "kcal": 140,
+      "protein": 8,
+      "fat": 0,
+      "carbs": 24
+    },
+    {
+      "category": "Meal",
+      "name": "Lima beans, dry cooked (1 cup)",
+      "kcal": 260,
+      "protein": 16,
+      "fat": 0,
+      "carbs": 48
+    },
+    {
+      "category": "Meal",
+      "name": "Navy beans baked with pork (3/4 cup)",
+      "kcal": 250,
+      "protein": 11,
+      "fat": 6,
+      "carbs": 37
+    },
+    {
+      "category": "Meal",
+      "name": "Red kidney beans, canned (1 cup)",
+      "kcal": 230,
+      "protein": 15,
+      "fat": 1,
+      "carbs": 42
+    },
+    {
+      "category": "Snack",
+      "name": "Bean sprouts, uncooked (1 cup)",
+      "kcal": 17,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 3
+    },
+    {
+      "category": "Snack",
+      "name": "Beet greens, steamed (1 cup)",
+      "kcal": 27,
+      "protein": 2,
+      "fat": 0,
+      "carbs": 6
+    },
+    {
+      "category": "Snack",
+      "name": "Beetroots, boiled (1 cup)",
+      "kcal": 50,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 12
+    },
+    {
+      "category": "Snack",
+      "name": "Broccoli, steamed (1 cup)",
+      "kcal": 45,
+      "protein": 5,
+      "fat": 0,
+      "carbs": 8
+    },
+    {
+      "category": "Snack",
+      "name": "Brussels sprouts, steamed (1 cup)",
+      "kcal": 60,
+      "protein": 6,
+      "fat": 0,
+      "carbs": 12
+    },
+    {
+      "category": "Meal",
+      "name": "Cabbage coleslaw (1 cup)",
+      "kcal": 60,
+      "protein": 6,
+      "fat": 0,
+      "carbs": 12
+    },
+    {
+      "category": "Snack",
+      "name": "Sauerkraut, canned (1 cup)",
+      "kcal": 32,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 7
+    },
+    {
+      "category": "Snack",
+      "name": "Steamed cabbage (1 cup)",
+      "kcal": 40,
+      "protein": 2,
+      "fat": 0,
+      "carbs": 9
+    },
+    {
+      "category": "Snack",
+      "name": "Carrots, cooked diced (1 cup)",
+      "kcal": 45,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 10
+    },
+    {
+      "category": "Snack",
+      "name": "Carrots, raw grated (1 cup)",
+      "kcal": 45,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 10
+    },
+    {
+      "category": "Snack",
+      "name": "Carrots, raw strips (1 medium)",
+      "kcal": 20,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 5
+    },
+    {
+      "category": "Snack",
+      "name": "Cauliflower, steamed (1 cup)",
+      "kcal": 30,
+      "protein": 3,
+      "fat": 0,
+      "carbs": 6
+    },
+    {
+      "category": "Snack",
+      "name": "Celery, cooked diced (1 cup)",
+      "kcal": 20,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 4
+    },
+    {
+      "category": "Snack",
+      "name": "Celery, raw stalk (1 large)",
+      "kcal": 5,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 1
+    },
+    {
+      "category": "Snack",
+      "name": "Chard, steamed (1 cup)",
+      "kcal": 30,
+      "protein": 2,
+      "fat": 0,
+      "carbs": 7
+    },
+    {
+      "category": "Meal",
+      "name": "Collards, steamed leaves (1 cup)",
+      "kcal": 51,
+      "protein": 5,
+      "fat": 1,
+      "carbs": 8
+    },
+    {
+      "category": "Snack",
+      "name": "Corn on the cob, steamed (1 ear)",
+      "kcal": 92,
+      "protein": 3,
+      "fat": 1,
+      "carbs": 21
+    },
+    {
+      "category": "Meal",
+      "name": "Corn cooked/canned (1 cup)",
+      "kcal": 170,
+      "protein": 5,
+      "fat": 0,
+      "carbs": 41
+    },
+    {
+      "category": "Snack",
+      "name": "Dandelion greens, steamed (1 cup)",
+      "kcal": 80,
+      "protein": 5,
+      "fat": 1,
+      "carbs": 16
+    },
+    {
+      "category": "Snack",
+      "name": "Eggplant, steamed (1 cup)",
+      "kcal": 30,
+      "protein": 2,
+      "fat": 0,
+      "carbs": 9
+    },
+    {
+      "category": "Snack",
+      "name": "Endive (escarole) (2 oz)",
+      "kcal": 10,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 2
+    },
+    {
+      "category": "Snack",
+      "name": "Kale, steamed (1 cup)",
+      "kcal": 45,
+      "protein": 4,
+      "fat": 1,
+      "carbs": 8
+    },
+    {
+      "category": "Snack",
+      "name": "Kohlrabi, raw sliced (1 cup)",
+      "kcal": 40,
+      "protein": 2,
+      "fat": 0,
+      "carbs": 9
+    },
+    {
+      "category": "Snack",
+      "name": "Lambs quarters, steamed (1 cup)",
+      "kcal": 48,
+      "protein": 5,
+      "fat": 0,
+      "carbs": 7
+    },
+    {
+      "category": "Meal",
+      "name": "Lentils (1 cup)",
+      "kcal": 212,
+      "protein": 15,
+      "fat": 0,
+      "carbs": 38
+    },
+    {
+      "category": "Snack",
+      "name": "Lettuce, loose leaf (1/4 head)",
+      "kcal": 14,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 2
+    },
+    {
+      "category": "Snack",
+      "name": "Lettuce, iceberg (1/4 head)",
+      "kcal": 13,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 3
+    },
+    {
+      "category": "Snack",
+      "name": "Mushrooms, cooked or canned (120 g)",
+      "kcal": 12,
+      "protein": 2,
+      "fat": 0,
+      "carbs": 4
+    },
+    {
+      "category": "Snack",
+      "name": "Mustard greens, steamed (1 cup)",
+      "kcal": 30,
+      "protein": 3,
+      "fat": 1,
+      "carbs": 6
+    },
+    {
+      "category": "Snack",
+      "name": "Okra, diced & steamed (1 1/3 cups)",
+      "kcal": 32,
+      "protein": 1,
+      "fat": 1,
+      "carbs": 7
+    },
+    {
+      "category": "Snack",
+      "name": "Onions, mature cooked (1)",
+      "kcal": 80,
+      "protein": 2,
+      "fat": 0,
+      "carbs": 18
+    },
+    {
+      "category": "Snack",
+      "name": "Onions, raw green (6 small)",
+      "kcal": 22,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 5
+    },
+    {
+      "category": "Snack",
+      "name": "Parsley, chopped raw (2 Tbsp)",
+      "kcal": 2,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 0
+    },
+    {
+      "category": "Snack",
+      "name": "Parsnips, steamed (1 cup)",
+      "kcal": 95,
+      "protein": 2,
+      "fat": 1,
+      "carbs": 22
+    },
+    {
+      "category": "Snack",
+      "name": "Peas, green canned (1 cup)",
+      "kcal": 66,
+      "protein": 3,
+      "fat": 0,
+      "carbs": 13
+    },
+    {
+      "category": "Snack",
+      "name": "Peas, fresh steamed (1 cup)",
+      "kcal": 70,
+      "protein": 5,
+      "fat": 0,
+      "carbs": 12
+    },
+    {
+      "category": "Meal",
+      "name": "Peas, split cooked (100 g)",
+      "kcal": 115,
+      "protein": 8,
+      "fat": 0,
+      "carbs": 21
+    },
+    {
+      "category": "Snack",
+      "name": "Peas and carrots, frozen heated (1 cup)",
+      "kcal": 53,
+      "protein": 3,
+      "fat": 0,
+      "carbs": 10
+    },
+    {
+      "category": "Snack",
+      "name": "Peppers, pimientos canned (1 pod)",
+      "kcal": 10,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 2
+    },
+    {
+      "category": "Snack",
+      "name": "Peppers, raw green sweet (1 large)",
+      "kcal": 25,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 6
+    },
+    {
+      "category": "Meal",
+      "name": "Stuffed peppers with beef & crumbs (1 medium)",
+      "kcal": 255,
+      "protein": 19,
+      "fat": 9,
+      "carbs": 24
+    },
+    {
+      "category": "Meal",
+      "name": "Potato, baked (1 medium)",
+      "kcal": 100,
+      "protein": 2,
+      "fat": 0,
+      "carbs": 22
+    },
+    {
+      "category": "Snack",
+      "name": "Potatoes, french-fried (10 pieces)",
+      "kcal": 155,
+      "protein": 1,
+      "fat": 7,
+      "carbs": 20
+    },
+    {
+      "category": "Meal",
+      "name": "Potatoes, mashed with milk & butter (1 cup)",
+      "kcal": 230,
+      "protein": 4,
+      "fat": 12,
+      "carbs": 28
+    },
+    {
+      "category": "Meal",
+      "name": "Potatoes, pan-fried (3/4 cup)",
+      "kcal": 268,
+      "protein": 4,
+      "fat": 14,
+      "carbs": 33
+    },
+    {
+      "category": "Meal",
+      "name": "Potatoes, scalloped with cheese (3/4 cup)",
+      "kcal": 145,
+      "protein": 6,
+      "fat": 8,
+      "carbs": 14
+    },
+    {
+      "category": "Snack",
+      "name": "Potato, steamed before peeling (1 medium)",
+      "kcal": 80,
+      "protein": 2,
+      "fat": 0,
+      "carbs": 19
+    },
+    {
+      "category": "Snack",
+      "name": "Potato chips (10 chips)",
+      "kcal": 110,
+      "protein": 1,
+      "fat": 7,
+      "carbs": 10
+    },
+    {
+      "category": "Snack",
+      "name": "Radishes, raw (5 small)",
+      "kcal": 10,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 2
+    },
+    {
+      "category": "Snack",
+      "name": "Rutabagas, diced (100 g)",
+      "kcal": 32,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 8
+    },
+    {
+      "category": "Meal",
+      "name": "Soybeans, unseasoned (1 cup)",
+      "kcal": 260,
+      "protein": 22,
+      "fat": 11,
+      "carbs": 20
+    },
+    {
+      "category": "Snack",
+      "name": "Spinach, steamed (1 cup)",
+      "kcal": 26,
+      "protein": 3,
+      "fat": 0,
+      "carbs": 3
+    },
+    {
+      "category": "Snack",
+      "name": "Squash, summer (1 cup)",
+      "kcal": 35,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 8
+    },
+    {
+      "category": "Snack",
+      "name": "Squash, winter mashed (1 cup)",
+      "kcal": 95,
+      "protein": 4,
+      "fat": 0,
+      "carbs": 23
+    },
+    {
+      "category": "Meal",
+      "name": "Sweet potato, baked (1 medium)",
+      "kcal": 155,
+      "protein": 2,
+      "fat": 1,
+      "carbs": 36
+    },
+    {
+      "category": "Meal",
+      "name": "Sweet potato, candied (1 medium)",
+      "kcal": 235,
+      "protein": 2,
+      "fat": 6,
+      "carbs": 80
+    },
+    {
+      "category": "Snack",
+      "name": "Tomatoes, canned whole (1 cup)",
+      "kcal": 50,
+      "protein": 2,
+      "fat": 0,
+      "carbs": 9
+    },
+    {
+      "category": "Snack",
+      "name": "Tomatoes, raw (1 medium)",
+      "kcal": 30,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 6
+    },
+    {
+      "category": "Drink",
+      "name": "Tomato juice, canned (1 cup)",
+      "kcal": 50,
+      "protein": 2,
+      "fat": 0,
+      "carbs": 10
+    },
+    {
+      "category": "Snack",
+      "name": "Tomato catsup (1 Tbsp)",
+      "kcal": 15,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 4
+    },
+    {
+      "category": "Meal",
+      "name": "Turnip greens, steamed (1 cup)",
+      "kcal": 45,
+      "protein": 4,
+      "fat": 1,
+      "carbs": 8
+    },
+    {
+      "category": "Snack",
+      "name": "Turnips, steamed sliced (1 cup)",
+      "kcal": 40,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 9
+    },
+    {
+      "category": "Snack",
+      "name": "Watercress, raw (1 cup)",
+      "kcal": 9,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 1
+    },
+    {
+      "category": "Drink",
+      "name": "Apple juice, fresh or canned (1 cup)",
+      "kcal": 125,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 34
+    },
+    {
+      "category": "Drink",
+      "name": "Apple cider vinegar (1/3 cup)",
+      "kcal": 14,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 3
+    },
+    {
+      "category": "Snack",
+      "name": "Apple, raw (1 medium)",
+      "kcal": 70,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 18
+    },
+    {
+      "category": "Snack",
+      "name": "Apples, stewed or canned (1 cup)",
+      "kcal": 100,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 26
+    },
+    {
+      "category": "Snack",
+      "name": "Apricots, canned in syrup (1 cup)",
+      "kcal": 220,
+      "protein": 2,
+      "fat": 0,
+      "carbs": 57
+    },
+    {
+      "category": "Snack",
+      "name": "Apricots, dried uncooked (1/2 cup)",
+      "kcal": 220,
+      "protein": 4,
+      "fat": 0,
+      "carbs": 50
+    },
+    {
+      "category": "Snack",
+      "name": "Apricots, fresh (3 medium)",
+      "kcal": 55,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 14
+    },
+    {
+      "category": "Drink",
+      "name": "Apricot nectar or juice (1 cup)",
+      "kcal": 140,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 36
+    },
+    {
+      "category": "Snack",
+      "name": "Avocado (1/2 large)",
+      "kcal": 185,
+      "protein": 2,
+      "fat": 18,
+      "carbs": 6
+    },
+    {
+      "category": "Snack",
+      "name": "Banana (1 medium)",
+      "kcal": 85,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 23
+    },
+    {
+      "category": "Snack",
+      "name": "Blackberries, fresh (1 cup)",
+      "kcal": 85,
+      "protein": 2,
+      "fat": 1,
+      "carbs": 19
+    },
+    {
+      "category": "Snack",
+      "name": "Blueberries, canned (1 cup)",
+      "kcal": 245,
+      "protein": 1,
+      "fat": 1,
+      "carbs": 65
+    },
+    {
+      "category": "Snack",
+      "name": "Cantaloupe (1/2 medium)",
+      "kcal": 40,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 9
+    },
+    {
+      "category": "Snack",
+      "name": "Cherries, canned (1 cup)",
+      "kcal": 100,
+      "protein": 2,
+      "fat": 1,
+      "carbs": 26
+    },
+    {
+      "category": "Snack",
+      "name": "Cherries, fresh (1 cup)",
+      "kcal": 65,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 15
+    },
+    {
+      "category": "Snack",
+      "name": "Cranberry sauce (1 cup)",
+      "kcal": 530,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 142
+    },
+    {
+      "category": "Snack",
+      "name": "Dates, dried (1 cup)",
+      "kcal": 505,
+      "protein": 4,
+      "fat": 0,
+      "carbs": 134
+    },
+    {
+      "category": "Snack",
+      "name": "Figs, dried (2 large)",
+      "kcal": 120,
+      "protein": 2,
+      "fat": 0,
+      "carbs": 30
+    },
+    {
+      "category": "Snack",
+      "name": "Figs, fresh (3 medium)",
+      "kcal": 90,
+      "protein": 2,
+      "fat": 0,
+      "carbs": 22
+    },
+    {
+      "category": "Snack",
+      "name": "Figs, stewed or canned with syrup (3)",
+      "kcal": 130,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 32
+    },
+    {
+      "category": "Snack",
+      "name": "Fruit cocktail, canned (1 cup)",
+      "kcal": 195,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 50
+    },
+    {
+      "category": "Snack",
+      "name": "Grapefruit, canned (1 cup)",
+      "kcal": 170,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 44
+    },
+    {
+      "category": "Snack",
+      "name": "Grapefruit, fresh (1/2 fruit)",
+      "kcal": 50,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 14
+    },
+    {
+      "category": "Drink",
+      "name": "Grapefruit juice (1 cup)",
+      "kcal": 100,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 24
+    },
+    {
+      "category": "Snack",
+      "name": "Grapes, American (1 cup)",
+      "kcal": 70,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 16
+    },
+    {
+      "category": "Snack",
+      "name": "Grapes, European (1 cup)",
+      "kcal": 100,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 26
+    },
+    {
+      "category": "Drink",
+      "name": "Grape juice, bottled (1 cup)",
+      "kcal": 160,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 42
+    },
+    {
+      "category": "Drink",
+      "name": "Lemon juice, fresh (1/2 cup)",
+      "kcal": 30,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 10
+    },
+    {
+      "category": "Snack",
+      "name": "Lemonade concentrate, frozen (6 oz can)",
+      "kcal": 430,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 112
+    },
+    {
+      "category": "Snack",
+      "name": "Limeade concentrate, frozen (6 oz can)",
+      "kcal": 405,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 108
+    },
+    {
+      "category": "Snack",
+      "name": "Olives, green canned (10 large)",
+      "kcal": 72,
+      "protein": 1,
+      "fat": 10,
+      "carbs": 3
+    },
+    {
+      "category": "Snack",
+      "name": "Olives, ripe canned (10 large)",
+      "kcal": 105,
+      "protein": 1,
+      "fat": 13,
+      "carbs": 1
+    },
+    {
+      "category": "Snack",
+      "name": "Orange, fresh (1 medium)",
+      "kcal": 60,
+      "protein": 2,
+      "fat": 0,
+      "carbs": 16
+    },
+    {
+      "category": "Drink",
+      "name": "Orange juice, fresh (8 oz)",
+      "kcal": 112,
+      "protein": 2,
+      "fat": 0,
+      "carbs": 25
+    },
+    {
+      "category": "Snack",
+      "name": "Orange juice concentrate, frozen (6 oz can)",
+      "kcal": 330,
+      "protein": 2,
+      "fat": 0,
+      "carbs": 78
+    },
+    {
+      "category": "Snack",
+      "name": "Papaya, fresh (1/2 medium)",
+      "kcal": 75,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 18
+    },
+    {
+      "category": "Snack",
+      "name": "Peaches, canned sliced (1 cup)",
+      "kcal": 200,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 52
+    },
+    {
+      "category": "Snack",
+      "name": "Peaches, fresh (1 medium)",
+      "kcal": 35,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 10
+    },
+    {
+      "category": "Snack",
+      "name": "Pears, canned sweetened (1 cup)",
+      "kcal": 195,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 50
+    },
+    {
+      "category": "Snack",
+      "name": "Pears, raw (1 medium)",
+      "kcal": 100,
+      "protein": 1,
+      "fat": 1,
+      "carbs": 25
+    },
+    {
+      "category": "Snack",
+      "name": "Persimmon, Japanese (1 medium)",
+      "kcal": 75,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 20
+    },
+    {
+      "category": "Snack",
+      "name": "Pineapple, canned sliced (1 slice)",
+      "kcal": 95,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 26
+    },
+    {
+      "category": "Snack",
+      "name": "Pineapple, crushed (1 cup)",
+      "kcal": 205,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 55
+    },
+    {
+      "category": "Snack",
+      "name": "Pineapple, raw diced (1 cup)",
+      "kcal": 75,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 19
+    },
+    {
+      "category": "Drink",
+      "name": "Pineapple juice, canned (1 cup)",
+      "kcal": 120,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 32
+    },
+    {
+      "category": "Snack",
+      "name": "Plums, canned in syrup (1 cup)",
+      "kcal": 185,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 50
+    },
+    {
+      "category": "Snack",
+      "name": "Plums, raw (1)",
+      "kcal": 30,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 7
+    },
+    {
+      "category": "Snack",
+      "name": "Prunes, cooked (1 cup)",
+      "kcal": 300,
+      "protein": 3,
+      "fat": 1,
+      "carbs": 81
+    },
+    {
+      "category": "Drink",
+      "name": "Prune juice, canned (1 cup)",
+      "kcal": 170,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 45
+    },
+    {
+      "category": "Snack",
+      "name": "Raisins, dried (1/2 cup)",
+      "kcal": 230,
+      "protein": 2,
+      "fat": 0,
+      "carbs": 82
+    },
+    {
+      "category": "Snack",
+      "name": "Raspberries, frozen (1/2 cup)",
+      "kcal": 100,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 25
+    },
+    {
+      "category": "Snack",
+      "name": "Raspberries, raw red (3/4 cup)",
+      "kcal": 57,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 14
+    },
+    {
+      "category": "Snack",
+      "name": "Rhubarb, cooked sweetened (1 cup)",
+      "kcal": 385,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 98
+    },
+    {
+      "category": "Snack",
+      "name": "Strawberries, frozen (1 cup)",
+      "kcal": 242,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 60
+    },
+    {
+      "category": "Snack",
+      "name": "Strawberries, raw (1 cup)",
+      "kcal": 54,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 12
+    },
+    {
+      "category": "Snack",
+      "name": "Tangerine (1 medium)",
+      "kcal": 40,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 10
+    },
+    {
+      "category": "Snack",
+      "name": "Watermelon (1 wedge)",
+      "kcal": 120,
+      "protein": 2,
+      "fat": 1,
+      "carbs": 29
+    },
+    {
+      "category": "Meal",
+      "name": "Biscuits 2.5 in diameter (1)",
+      "kcal": 130,
+      "protein": 3,
+      "fat": 4,
+      "carbs": 18
+    },
+    {
+      "category": "Meal",
+      "name": "Bran flakes (1 cup)",
+      "kcal": 117,
+      "protein": 3,
+      "fat": 0,
+      "carbs": 32
+    },
+    {
+      "category": "Meal",
+      "name": "Bread, cracked wheat (1 slice)",
+      "kcal": 60,
+      "protein": 2,
+      "fat": 1,
+      "carbs": 12
+    },
+    {
+      "category": "Meal",
+      "name": "Bread, rye (1 slice)",
+      "kcal": 55,
+      "protein": 2,
+      "fat": 1,
+      "carbs": 12
+    },
+    {
+      "category": "Meal",
+      "name": "Bread, white (1-lb loaf)",
+      "kcal": 1225,
+      "protein": 39,
+      "fat": 15,
+      "carbs": 229
+    },
+    {
+      "category": "Meal",
+      "name": "Bread, whole wheat (1-lb loaf)",
+      "kcal": 1100,
+      "protein": 48,
+      "fat": 14,
+      "carbs": 216
+    },
+    {
+      "category": "Meal",
+      "name": "Bread, whole wheat (1 slice)",
+      "kcal": 55,
+      "protein": 2,
+      "fat": 1,
+      "carbs": 11
+    },
+    {
+      "category": "Meal",
+      "name": "Corn bread (1 serving)",
+      "kcal": 100,
+      "protein": 3,
+      "fat": 4,
+      "carbs": 15
+    },
+    {
+      "category": "Meal",
+      "name": "Cornflakes (1 cup)",
+      "kcal": 110,
+      "protein": 2,
+      "fat": 0,
+      "carbs": 25
+    },
+    {
+      "category": "Meal",
+      "name": "Corn grits, cooked (1 cup)",
+      "kcal": 120,
+      "protein": 8,
+      "fat": 0,
+      "carbs": 27
+    },
+    {
+      "category": "Meal",
+      "name": "Corn meal, yellow (1 cup)",
+      "kcal": 360,
+      "protein": 9,
+      "fat": 4,
+      "carbs": 74
+    },
+    {
+      "category": "Snack",
+      "name": "Crackers, graham (2 medium)",
+      "kcal": 55,
+      "protein": 1,
+      "fat": 1,
+      "carbs": 10
+    },
+    {
+      "category": "Snack",
+      "name": "Crackers, soda (2.5 square)",
+      "kcal": 45,
+      "protein": 1,
+      "fat": 1,
+      "carbs": 8
+    },
+    {
+      "category": "Meal",
+      "name": "Farina (1 cup)",
+      "kcal": 105,
+      "protein": 3,
+      "fat": 0,
+      "carbs": 22
+    },
+    {
+      "category": "Meal",
+      "name": "Soy flour, full fat (1 cup)",
+      "kcal": 460,
+      "protein": 39,
+      "fat": 22,
+      "carbs": 33
+    },
+    {
+      "category": "Meal",
+      "name": "Wheat flour, all-purpose (1 cup)",
+      "kcal": 400,
+      "protein": 12,
+      "fat": 1,
+      "carbs": 84
+    },
+    {
+      "category": "Meal",
+      "name": "Wheat flour, whole (1 cup)",
+      "kcal": 390,
+      "protein": 13,
+      "fat": 2,
+      "carbs": 79
+    },
+    {
+      "category": "Meal",
+      "name": "Macaroni, cooked (1 cup)",
+      "kcal": 155,
+      "protein": 5,
+      "fat": 1,
+      "carbs": 32
+    },
+    {
+      "category": "Meal",
+      "name": "Macaroni with cheese (1 cup)",
+      "kcal": 475,
+      "protein": 18,
+      "fat": 25,
+      "carbs": 44
+    },
+    {
+      "category": "Meal",
+      "name": "Muffin, refined flour (1)",
+      "kcal": 135,
+      "protein": 4,
+      "fat": 5,
+      "carbs": 19
+    },
+    {
+      "category": "Meal",
+      "name": "Noodles (1 cup)",
+      "kcal": 200,
+      "protein": 7,
+      "fat": 2,
+      "carbs": 37
+    },
+    {
+      "category": "Meal",
+      "name": "Oatmeal/rolled oats (1 cup)",
+      "kcal": 150,
+      "protein": 5,
+      "fat": 3,
+      "carbs": 26
+    },
+    {
+      "category": "Meal",
+      "name": "Pancakes, buckwheat (4 pieces)",
+      "kcal": 250,
+      "protein": 7,
+      "fat": 9,
+      "carbs": 28
+    },
+    {
+      "category": "Meal",
+      "name": "Pancakes, wheat (4 pieces)",
+      "kcal": 250,
+      "protein": 7,
+      "fat": 9,
+      "carbs": 28
+    },
+    {
+      "category": "Meal",
+      "name": "Pizza, cheese (1/8 of 14 in)",
+      "kcal": 180,
+      "protein": 8,
+      "fat": 6,
+      "carbs": 23
+    },
+    {
+      "category": "Snack",
+      "name": "Popcorn with oil and salt (2 cups)",
+      "kcal": 152,
+      "protein": 3,
+      "fat": 7,
+      "carbs": 20
+    },
+    {
+      "category": "Snack",
+      "name": "Puffed rice (1 cup)",
+      "kcal": 55,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 12
+    },
+    {
+      "category": "Snack",
+      "name": "Puffed wheat, presweetened (1 cup)",
+      "kcal": 105,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 26
+    },
+    {
+      "category": "Meal",
+      "name": "Rice, uncooked brown (1 cup)",
+      "kcal": 748,
+      "protein": 15,
+      "fat": 3,
+      "carbs": 154
+    },
+    {
+      "category": "Meal",
+      "name": "Rice, converted (1 cup)",
+      "kcal": 677,
+      "protein": 14,
+      "fat": 0,
+      "carbs": 142
+    },
+    {
+      "category": "Meal",
+      "name": "Rice, white (1 cup)",
+      "kcal": 692,
+      "protein": 4.2,
+      "fat": 0,
+      "carbs": 150
+    },
+    {
+      "category": "Meal",
+      "name": "Rice flakes (1 cup)",
+      "kcal": 115,
+      "protein": 2,
+      "fat": 0,
+      "carbs": 26
+    },
+    {
+      "category": "Meal",
+      "name": "Rice polish (1/2 cup)",
+      "kcal": 132,
+      "protein": 6,
+      "fat": 6,
+      "carbs": 28
+    },
+    {
+      "category": "Snack",
+      "name": "Breakfast roll, sweet (1 large)",
+      "kcal": 411,
+      "protein": 3,
+      "fat": 12,
+      "carbs": 23
+    },
+    {
+      "category": "Snack",
+      "name": "Roll, refined flour (1)",
+      "kcal": 115,
+      "protein": 3,
+      "fat": 2,
+      "carbs": 20
+    },
+    {
+      "category": "Snack",
+      "name": "Roll, whole wheat (1)",
+      "kcal": 102,
+      "protein": 4,
+      "fat": 1,
+      "carbs": 20
+    },
+    {
+      "category": "Meal",
+      "name": "Spaghetti with meat sauce (1 cup)",
+      "kcal": 285,
+      "protein": 13,
+      "fat": 10,
+      "carbs": 35
+    },
+    {
+      "category": "Meal",
+      "name": "Spaghetti with tomatoes and cheese (1 cup)",
+      "kcal": 210,
+      "protein": 6,
+      "fat": 5,
+      "carbs": 36
+    },
+    {
+      "category": "Meal",
+      "name": "Spanish rice with meat (1 cup)",
+      "kcal": 217,
+      "protein": 4,
+      "fat": 4,
+      "carbs": 40
+    },
+    {
+      "category": "Snack",
+      "name": "Shredded wheat biscuit (1)",
+      "kcal": 100,
+      "protein": 3,
+      "fat": 1,
+      "carbs": 23
+    },
+    {
+      "category": "Meal",
+      "name": "Waffle (1)",
+      "kcal": 240,
+      "protein": 8,
+      "fat": 9,
+      "carbs": 30
+    },
+    {
+      "category": "Meal",
+      "name": "Wheat germ (1 cup)",
+      "kcal": 245,
+      "protein": 17,
+      "fat": 7,
+      "carbs": 34
+    },
+    {
+      "category": "Meal",
+      "name": "Wheat-germ cereal, toasted (1 cup)",
+      "kcal": 260,
+      "protein": 20,
+      "fat": 7,
+      "carbs": 36
+    },
+    {
+      "category": "Meal",
+      "name": "Wheat-meal cereal, unrefined (3/4 cup)",
+      "kcal": 103,
+      "protein": 4,
+      "fat": 1,
+      "carbs": 25
+    },
+    {
+      "category": "Meal",
+      "name": "Wheat, cooked unground (3/4 cup)",
+      "kcal": 275,
+      "protein": 12,
+      "fat": 1,
+      "carbs": 35
+    },
+    {
+      "category": "Meal",
+      "name": "Bean soup (1 cup)",
+      "kcal": 190,
+      "protein": 8,
+      "fat": 5,
+      "carbs": 30
+    },
+    {
+      "category": "Meal",
+      "name": "Beef & vegetable soup (1 cup)",
+      "kcal": 100,
+      "protein": 6,
+      "fat": 4,
+      "carbs": 11
+    },
+    {
+      "category": "Meal",
+      "name": "Bouillon/broth/consomme (1 cup)",
+      "kcal": 24,
+      "protein": 5,
+      "fat": 0,
+      "carbs": 0
+    },
+    {
+      "category": "Meal",
+      "name": "Chicken or turkey soup (1 cup)",
+      "kcal": 75,
+      "protein": 4,
+      "fat": 2,
+      "carbs": 10
+    },
+    {
+      "category": "Meal",
+      "name": "Clam chowder, no milk (1 cup)",
+      "kcal": 85,
+      "protein": 5,
+      "fat": 2,
+      "carbs": 12
+    },
+    {
+      "category": "Meal",
+      "name": "Cream soup (asparagus/celery) (1 cup)",
+      "kcal": 200,
+      "protein": 7,
+      "fat": 12,
+      "carbs": 18
+    },
+    {
+      "category": "Meal",
+      "name": "Noodle/rice/barley soup (1 cup)",
+      "kcal": 115,
+      "protein": 6,
+      "fat": 4,
+      "carbs": 13
+    },
+    {
+      "category": "Meal",
+      "name": "Split-pea soup (1 cup)",
+      "kcal": 147,
+      "protein": 8,
+      "fat": 3,
+      "carbs": 25
+    },
+    {
+      "category": "Meal",
+      "name": "Tomato soup with milk (1 cup)",
+      "kcal": 175,
+      "protein": 6,
+      "fat": 7,
+      "carbs": 22
+    },
+    {
+      "category": "Meal",
+      "name": "Vegetable/vegetarian soup (1 cup)",
+      "kcal": 80,
+      "protein": 4,
+      "fat": 2,
+      "carbs": 14
+    },
+    {
+      "category": "Sweet",
+      "name": "Apple betty (1 serving)",
+      "kcal": 150,
+      "protein": 1,
+      "fat": 4,
+      "carbs": 29
+    },
+    {
+      "category": "Sweet",
+      "name": "Bread pudding with raisins (3/4 cup)",
+      "kcal": 374,
+      "protein": 11,
+      "fat": 12,
+      "carbs": 56
+    },
+    {
+      "category": "Sweet",
+      "name": "Angel food cake (1 slice)",
+      "kcal": 110,
+      "protein": 3,
+      "fat": 0,
+      "carbs": 23
+    },
+    {
+      "category": "Sweet",
+      "name": "Chocolate fudge with icing (1 slice)",
+      "kcal": 420,
+      "protein": 5,
+      "fat": 14,
+      "carbs": 70
+    },
+    {
+      "category": "Sweet",
+      "name": "Cupcake with icing (1)",
+      "kcal": 160,
+      "protein": 3,
+      "fat": 3,
+      "carbs": 31
+    },
+    {
+      "category": "Sweet",
+      "name": "Fruit cake (1 slice)",
+      "kcal": 105,
+      "protein": 2,
+      "fat": 4,
+      "carbs": 17
+    },
+    {
+      "category": "Sweet",
+      "name": "Gingerbread (2 in cube)",
+      "kcal": 180,
+      "protein": 2,
+      "fat": 7,
+      "carbs": 28
+    },
+    {
+      "category": "Sweet",
+      "name": "Gingerbread plain (1 slice)",
+      "kcal": 180,
+      "protein": 4,
+      "fat": 5,
+      "carbs": 31
+    },
+    {
+      "category": "Sweet",
+      "name": "Sponge cake, no icing (1 slice)",
+      "kcal": 115,
+      "protein": 3,
+      "fat": 2,
+      "carbs": 22
+    },
+    {
+      "category": "Sweet",
+      "name": "Caramels (5 pieces)",
+      "kcal": 104,
+      "protein": 0,
+      "fat": 3,
+      "carbs": 19
+    },
+    {
+      "category": "Sweet",
+      "name": "Chocolate creams (2 pieces)",
+      "kcal": 130,
+      "protein": 0,
+      "fat": 4,
+      "carbs": 24
+    },
+    {
+      "category": "Sweet",
+      "name": "Fudge, plain (2 pieces)",
+      "kcal": 370,
+      "protein": 0,
+      "fat": 12,
+      "carbs": 80
+    },
+    {
+      "category": "Sweet",
+      "name": "Hard candies (1 oz)",
+      "kcal": 90,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 28
+    },
+    {
+      "category": "Sweet",
+      "name": "Marshmallows (5 large)",
+      "kcal": 98,
+      "protein": 1,
+      "fat": 0,
+      "carbs": 23
+    },
+    {
+      "category": "Sweet",
+      "name": "Milk chocolate (2 oz bar)",
+      "kcal": 290,
+      "protein": 2,
+      "fat": 6,
+      "carbs": 44
+    },
+    {
+      "category": "Sweet",
+      "name": "Chocolate syrup (2 Tbsp)",
+      "kcal": 80,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 22
+    },
+    {
+      "category": "Sweet",
+      "name": "Doughnut, cake type (1)",
+      "kcal": 135,
+      "protein": 2,
+      "fat": 7,
+      "carbs": 17
+    },
+    {
+      "category": "Sweet",
+      "name": "Gelatin dessert (1 cup)",
+      "kcal": 155,
+      "protein": 4,
+      "fat": 0,
+      "carbs": 36
+    },
+    {
+      "category": "Sweet",
+      "name": "Honey (2 Tbsp)",
+      "kcal": 120,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 30
+    },
+    {
+      "category": "Sweet",
+      "name": "Ices (lime/orange, 1 cup)",
+      "kcal": 117,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 48
+    },
+    {
+      "category": "Sweet",
+      "name": "Jams or marmalades (1 Tbsp)",
+      "kcal": 55,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 14
+    },
+    {
+      "category": "Sweet",
+      "name": "Jellies (1 Tbsp)",
+      "kcal": 50,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 13
+    },
+    {
+      "category": "Sweet",
+      "name": "Molasses (1 Tbsp)",
+      "kcal": 45,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 11
+    },
+    {
+      "category": "Sweet",
+      "name": "Sugar, beet or cane (1 cup)",
+      "kcal": 770,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 199
+    },
+    {
+      "category": "Sweet",
+      "name": "Sugar (1 Tbsp)",
+      "kcal": 50,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 12
+    },
+    {
+      "category": "Sweet",
+      "name": "Brown sugar (1 cup)",
+      "kcal": 815,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 210
+    },
+    {
+      "category": "Sweet",
+      "name": "Maple syrup (2 Tbsp)",
+      "kcal": 100,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 25
+    },
+    {
+      "category": "Sweet",
+      "name": "Table syrup (2 Tbsp)",
+      "kcal": 110,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 29
+    },
+    {
+      "category": "Sweet",
+      "name": "Tapioca cream pudding (1 cup)",
+      "kcal": 335,
+      "protein": 10,
+      "fat": 10,
+      "carbs": 42
+    },
+    {
+      "category": "Snack",
+      "name": "Almonds, dried (1/2 cup)",
+      "kcal": 425,
+      "protein": 13,
+      "fat": 38,
+      "carbs": 13
+    },
+    {
+      "category": "Snack",
+      "name": "Almonds, roasted & salted (1/2 cup)",
+      "kcal": 439,
+      "protein": 13,
+      "fat": 40,
+      "carbs": 13
+    },
+    {
+      "category": "Snack",
+      "name": "Brazil nuts, unsalted (1/2 cup)",
+      "kcal": 457,
+      "protein": 10,
+      "fat": 47,
+      "carbs": 7
+    },
+    {
+      "category": "Snack",
+      "name": "Cashews, unsalted (1/2 cup)",
+      "kcal": 392,
+      "protein": 12,
+      "fat": 32,
+      "carbs": 20
+    },
+    {
+      "category": "Snack",
+      "name": "Coconut, shredded sweetened (1/2 cup)",
+      "kcal": 274,
+      "protein": 1,
+      "fat": 20,
+      "carbs": 26
+    },
+    {
+      "category": "Snack",
+      "name": "Coconut, unsweetened (1/2 cup)",
+      "kcal": 357,
+      "protein": 4,
+      "fat": 30,
+      "carbs": 14
+    },
+    {
+      "category": "Snack",
+      "name": "Peanut butter, natural (1/3 cup)",
+      "kcal": 284,
+      "protein": 13,
+      "fat": 24,
+      "carbs": 8
+    },
+    {
+      "category": "Snack",
+      "name": "Peanuts, roasted (1/3 cup)",
+      "kcal": 290,
+      "protein": 13,
+      "fat": 25,
+      "carbs": 9
+    },
+    {
+      "category": "Snack",
+      "name": "Pecans, raw halves (1/2 cup)",
+      "kcal": 343,
+      "protein": 5,
+      "fat": 35,
+      "carbs": 7
+    },
+    {
+      "category": "Snack",
+      "name": "Sesame seeds, dry (1/2 cup)",
+      "kcal": 280,
+      "protein": 9,
+      "fat": 24,
+      "carbs": 10
+    },
+    {
+      "category": "Snack",
+      "name": "Sunflower seeds (1/2 cup)",
+      "kcal": 280,
+      "protein": 12,
+      "fat": 26,
+      "carbs": 10
+    },
+    {
+      "category": "Snack",
+      "name": "Walnuts, English raw (1/2 cup)",
+      "kcal": 325,
+      "protein": 7,
+      "fat": 32,
+      "carbs": 8
+    },
+    {
+      "category": "Drink",
+      "name": "Beer (4% alcohol, 2 cups)",
+      "kcal": 228,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 8
+    },
+    {
+      "category": "Drink",
+      "name": "Gin, rum, vodka or whiskey (1 oz)",
+      "kcal": 70,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 0
+    },
+    {
+      "category": "Drink",
+      "name": "Dessert wine (1/2 cup)",
+      "kcal": 164,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 9
+    },
+    {
+      "category": "Drink",
+      "name": "Table wine (1/2 cup)",
+      "kcal": 100,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 5
+    },
+    {
+      "category": "Drink",
+      "name": "Artificially sweetened carbonated drink (12 oz)",
+      "kcal": 0,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 0
+    },
+    {
+      "category": "Drink",
+      "name": "Club soda (12 oz)",
+      "kcal": 0,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 0
+    },
+    {
+      "category": "Drink",
+      "name": "Cola drink, sweetened (12 oz)",
+      "kcal": 137,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 38
+    },
+    {
+      "category": "Drink",
+      "name": "Fruit-flavored soda (12 oz)",
+      "kcal": 161,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 42
+    },
+    {
+      "category": "Drink",
+      "name": "Ginger ale (12 oz)",
+      "kcal": 105,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 28
+    },
+    {
+      "category": "Drink",
+      "name": "Root beer (12 oz)",
+      "kcal": 140,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 35
+    },
+    {
+      "category": "Drink",
+      "name": "Coffee, black (1 cup)",
+      "kcal": 3,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 1
+    },
+    {
+      "category": "Drink",
+      "name": "Tea, clear (1 cup)",
+      "kcal": 4,
+      "protein": 0,
+      "fat": 0,
+      "carbs": 1
+    }
   ],
   "activities": [
     {"category": "Cardio", "label": "Walking (3.5 METs)", "met": 3.5},
