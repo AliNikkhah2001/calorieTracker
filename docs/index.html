@@ -184,22 +184,28 @@
             </div>
             <div class="pill" id="streaks"></div>
           </header>
-          <div class="grid compact">
-            <canvas id="pie-chart" height="200"></canvas>
-            <canvas id="deficit-chart" height="200"></canvas>
+          <div class="chart-row">
+            <div class="chart-box">
+              <div class="chart-title">Calorie mix</div>
+              <canvas class="chart" id="pie-chart" height="220"></canvas>
+            </div>
+            <div class="chart-box">
+              <div class="chart-title">Running deficit</div>
+              <canvas class="chart" id="deficit-chart" height="220"></canvas>
+            </div>
           </div>
           <div class="metric-grid" id="snapshot-metrics"></div>
         </article>
 
         <section class="grid">
-          <article>
+          <article class="card">
             <header><h2>Running Calorie Line</h2></header>
             <p class="muted">Tracks how each intake or workout moves the daily total versus your base burn.</p>
-            <canvas id="calorie-line" height="200"></canvas>
+            <div class="chart-box"><canvas class="chart" id="calorie-line" height="220"></canvas></div>
           </article>
-          <article>
+          <article class="card">
             <header><h2>Weight &amp; Prediction</h2></header>
-            <canvas id="weight-chart" height="220"></canvas>
+            <div class="chart-box"><canvas class="chart" id="weight-chart" height="240"></canvas></div>
           </article>
         </section>
       </section>
@@ -213,9 +219,9 @@
             </div>
             <div class="countdown" id="fasting-countdown"></div>
           </header>
-          <div class="grid compact">
+          <div class="detox-layout">
             <div id="detox-list" class="grid compact"></div>
-            <div>
+            <div class="detox-actions">
               <label><input type="checkbox" id="detox-kept" /> Stayed on plan today</label>
               <button id="save-detox-day">Save day</button>
             </div>
@@ -246,7 +252,7 @@
             <div class="bold-metric" id="plan-percent"></div>
           </header>
           <div class="metric-grid" id="detox-metrics"></div>
-          <canvas id="detox-chart" height="200"></canvas>
+          <div class="chart-box"><canvas class="chart" id="detox-chart" height="220"></canvas></div>
         </article>
       </section>
     </main>

@@ -106,6 +106,36 @@ header h1 {
   border: 1px dashed rgba(15, 23, 42, 0.12);
 }
 
+.chart-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+.chart-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.9rem;
+  padding: 0.85rem;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+  max-width: 540px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.chart-title {
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.chart-box canvas {
+  width: 100% !important;
+  max-height: 320px;
+  display: block;
+  margin: 0 auto;
+}
+
 .bold-metric {
   font-size: 1.8rem;
   font-weight: 700;
@@ -167,20 +197,40 @@ header h1 {
   gap: 0.5rem;
 }
 
+#detox-list {
+  align-content: start;
+}
+
 #snapshot-metrics .metric {
   background: #fff7ed;
   border-color: #fed7aa;
 }
 
-#calorie-line,
-#weight-chart,
-#deficit-chart,
-#pie-chart,
-#calorie-chart,
-#detox-chart {
-  background: #ffffff;
+.detox-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 3fr) 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.detox-actions {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   border-radius: 0.75rem;
-  padding: 0.5rem;
+  padding: 0.85rem;
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+}
+
+@media (max-width: 900px) {
+  .detox-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-row {
+    grid-template-columns: 1fr;
+  }
 }
 
 footer small {
