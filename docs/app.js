@@ -2,7 +2,9 @@ const STORAGE_KEY = 'calorie-tracker-state-v2';
 let calorieChart;
 let weightChart;
 let deficitChart;
+let deficitTrendChart;
 let pieChart;
+let detoxChart;
 let catalogs = { foods: [], activities: [] };
 
 let state = loadState();
@@ -83,6 +85,7 @@ function saveState() {
 }
 
 async function init() {
+  bindTabs();
   bindUserControls();
   bindProfileForm();
   bindFoodControls();
@@ -93,6 +96,26 @@ async function init() {
   await loadCatalog();
   renderAll();
   startCountdown();
+}
+
+function bindTabs() {
+  const tabs = document.querySelectorAll('.tab');
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      tabs.forEach((t) => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.tab-panel').forEach((panel) => {
+        panel.classList.remove('active');
+      });
+      document.getElementById(`panel-${tab.dataset.tab}`).classList.add('active');
+      if (pieChart) pieChart.resize();
+      if (deficitChart) deficitChart.resize();
+      if (deficitTrendChart) deficitTrendChart.resize();
+      if (weightChart) weightChart.resize();
+      if (calorieChart) calorieChart.resize();
+      if (detoxChart) detoxChart.resize();
+    });
+  });
 }
 
 async function loadCatalog() {
@@ -385,6 +408,8 @@ function renderAll() {
   renderWeightTable();
   renderDetox();
   renderStreaks();
+  renderSnapshotMetrics();
+  renderDetoxStats();
 }
 
 function renderProfileMetrics() {
@@ -470,6 +495,23 @@ function renderSummary() {
   drawCalorieChart(summary);
   drawPieChart(summary);
   drawDeficitChart(date);
+  drawDeficitTrend();
+}
+
+function renderSnapshotMetrics() {
+  const date = document.getElementById('log-date').value;
+  const summary = summarizeDate(date);
+  const metrics = document.getElementById('snapshot-metrics');
+  metrics.innerHTML = `
+    <div class="metric"><div>Current weight</div><div class="bold-metric">${summary.currentWeight.toFixed(1)} kg</div></div>
+    <div class="metric"><div>Predicted weight</div><div class="bold-metric">${summary.predictedWeight.toFixed(1)} kg</div></div>
+    <div class="metric"><div>Weekly change</div><div class="bold-metric">${summary.weeklyChange.toFixed(1)} kg</div></div>
+    <div class="metric"><div>Monthly change</div><div class="bold-metric">${summary.monthlyChange.toFixed(1)} kg</div></div>
+    <div class="metric"><div>Base burn</div><div class="bold-metric">${summary.base.toFixed(0)} kcal</div></div>
+    <div class="metric"><div>Exercise burn</div><div class="bold-metric">${summary.exercise.toFixed(0)} kcal</div></div>
+    <div class="metric"><div>Intake</div><div class="bold-metric">${summary.intake.toFixed(0)} kcal</div></div>
+    <div class="metric"><div>Net deficit</div><div class="bold-metric">${summary.deficit.toFixed(0)} kcal</div></div>
+  `;
 }
 
 function renderWeightTable() {
@@ -517,18 +559,67 @@ function renderDetox() {
   }
 }
 
-function renderStreaks() {
+function renderDetoxStats() {
   const user = getUser();
+  const entries = [...user.detox.daily].sort((a, b) => a.date.localeCompare(b.date));
+  const keptCount = entries.filter((e) => e.keptPlan).length;
+  const percent = entries.length ? Math.round((keptCount / entries.length) * 100) : 0;
+  document.getElementById('plan-percent').textContent = entries.length ? `${percent}% kept` : '—';
+
+  const metrics = document.getElementById('detox-metrics');
+  const streak = computeStreakInfo();
+  const daysSinceSmoking = daysSinceViolation('cigarettes');
+  const daysSinceAlcohol = daysSinceViolation('alcohol');
+  const daysSincePorn = daysSinceViolation('porn');
+
+  metrics.innerHTML = `
+    <div class="metric"><div>Days since smoking</div><div class="bold-metric">${formatDays(daysSinceSmoking)}</div></div>
+    <div class="metric"><div>Days since drinking</div><div class="bold-metric">${formatDays(daysSinceAlcohol)}</div></div>
+    <div class="metric"><div>Days since pornography</div><div class="bold-metric">${formatDays(daysSincePorn)}</div></div>
+    <div class="metric"><div>Current plan streak</div><div class="bold-metric">${streak.days} days</div></div>
+  `;
+
+  drawDetoxChart(entries);
+}
+
+function daysSinceViolation(itemId) {
+  const user = getUser();
+  const item = user.detox.items.find((i) => i.id === itemId);
+  if (!item) return null;
+  const entries = [...user.detox.daily].sort((a, b) => b.date.localeCompare(a.date));
+  for (const entry of entries) {
+    const value = entry.values[itemId];
+    const violated = item.type === 'checkbox' ? value === false : Number(value || 0) > 0;
+    if (violated) {
+      const diffMs = new Date() - new Date(entry.date);
+      return Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    }
+  }
+  return entries.length ? entries.length : null;
+}
+
+function formatDays(value) {
+  if (value === null) return '—';
+  return `${value} days`;
+}
+
+function renderStreaks() {
   const streakEl = document.getElementById('streaks');
+  const info = computeStreakInfo();
+  streakEl.innerHTML = `
+    <strong>Streak:</strong> ${info.days} days (${info.months} months, ${info.hours} hours) on fasting + detox plan
+  `;
+}
+
+function computeStreakInfo() {
+  const user = getUser();
   const now = new Date();
   const streakStart = new Date(user.detox.streakStart);
-  const msDiff = now - streakStart;
+  const msDiff = Math.max(0, now - streakStart);
   const hours = Math.floor(msDiff / (1000 * 60 * 60));
   const days = Math.floor(hours / 24);
   const months = Math.floor(days / 30);
-  streakEl.innerHTML = `
-    <strong>Streak:</strong> ${days} days (${months} months, ${hours} hours) on fasting + detox plan
-  `;
+  return { hours, days, months };
 }
 
 function summarizeDate(date) {
@@ -787,6 +878,62 @@ function drawDeficitChart(date) {
   });
 }
 
+function drawDeficitTrend() {
+  const user = getUser();
+  const dates = new Set();
+  user.foods.forEach((f) => dates.add(f.date));
+  user.exercises.forEach((e) => dates.add(e.date));
+  user.weights.forEach((w) => dates.add(w.date));
+  if (!dates.size) {
+    dates.add(new Date().toISOString().slice(0, 10));
+  }
+  const sorted = [...dates].sort();
+  const deficits = sorted.map((d) => summarizeDate(d).deficit);
+  const ctx = document.getElementById('calorie-line');
+  if (!ctx) return;
+  if (deficitTrendChart) deficitTrendChart.destroy();
+  deficitTrendChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: sorted,
+      datasets: [
+        {
+          label: 'Daily deficit (kcal)',
+          data: deficits,
+          borderColor: '#0ea5e9',
+          backgroundColor: 'rgba(14, 165, 233, 0.12)',
+          tension: 0.25,
+        },
+      ],
+    },
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: false } } },
+  });
+}
+
+function drawDetoxChart(entries) {
+  const ctx = document.getElementById('detox-chart');
+  if (!ctx) return;
+  const labels = entries.map((e) => e.date);
+  const kept = entries.map((e) => (e.keptPlan ? 1 : 0));
+  if (detoxChart) detoxChart.destroy();
+  detoxChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Plan kept (1=yes)',
+          data: kept,
+          borderColor: '#16a34a',
+          backgroundColor: 'rgba(22, 163, 74, 0.15)',
+          tension: 0.25,
+        },
+      ],
+    },
+    options: { scales: { y: { min: 0, max: 1, ticks: { stepSize: 1 } } }, plugins: { legend: { display: false } } },
+  });
+}
+
 function inputForDetox(item) {
   if (item.type === 'checkbox') {
     return `<input type="checkbox" data-detox="${item.id}" />`;
@@ -824,5 +971,8 @@ function renderCountdown() {
   const diffMs = target - now;
   const hours = Math.floor(diffMs / (1000 * 60 * 60));
   const mins = Math.floor((diffMs / (1000 * 60)) % 60);
-  document.getElementById('fasting-status').textContent = `${status} · ${hours}h ${mins}m remaining`;
+  const message = `${status} · ${hours}h ${mins}m remaining`;
+  document.getElementById('fasting-status').textContent = message;
+  const countdown = document.getElementById('fasting-countdown');
+  if (countdown) countdown.textContent = message;
 }

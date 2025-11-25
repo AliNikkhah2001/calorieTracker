@@ -1,9 +1,83 @@
+:root {
+  color-scheme: light;
+}
+
 body {
-  background: #f6f7fb;
+  background: #f8fafc;
+  color: #0f172a;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: 'Playfair Display', 'Inter', system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.hero {
+  padding: 2rem 0 1rem;
+}
+
+.kicker {
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.9rem;
+  color: #475569;
+  margin-bottom: 0.2rem;
+}
+
+.tab-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.tab {
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #0f172a;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 5px 15px rgba(15, 23, 42, 0.06);
+}
+
+.tab.active {
+  background: linear-gradient(135deg, #f8fafc 0%, #fff 100%);
+  border-color: #cbd5e1;
+  box-shadow: 0 12px 25px rgba(15, 23, 42, 0.08);
+  font-weight: 600;
+}
+
+.tab-panel {
+  display: none;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  padding: 1.25rem;
+  box-shadow: 0 15px 40px rgba(15, 23, 42, 0.05);
+  margin-bottom: 1rem;
+}
+
+.subcard {
+  background: #ffffff;
+  padding: 1rem;
+  border-radius: 0.85rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
 }
 
 header h1 {
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.25rem;
 }
 
 .muted {
@@ -15,47 +89,34 @@ header h1 {
   color: #e5e7eb;
   padding: 1rem;
   border-radius: 0.75rem;
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
 }
 
 .metric-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 0.5rem;
-  margin-top: 0.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.75rem;
 }
 
 .metric {
-  padding: 0.5rem;
-  border-radius: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
   background: rgba(15, 23, 42, 0.05);
-  border: 1px dashed rgba(15, 23, 42, 0.15);
+  border: 1px dashed rgba(15, 23, 42, 0.12);
+}
+
+.bold-metric {
+  font-size: 1.8rem;
+  font-weight: 700;
 }
 
 .flex-between {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.subcard {
-  background: white;
-  padding: 1rem;
-  border-radius: 0.75rem;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.04);
-}
-
-#summary p {
-  margin: 0.1rem 0;
-}
-
-.pill {
-  background: #e5e7eb;
-  color: #111827;
-  padding: 0.25rem 0.75rem;
-  border-radius: 999px;
-  font-size: 0.9rem;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .grid.compact {
@@ -64,10 +125,18 @@ header h1 {
   gap: 0.5rem;
 }
 
+.pill {
+  background: #e2e8f0;
+  color: #0f172a;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.95rem;
+}
+
 #food-table tbody tr:nth-child(odd),
 #exercise-table tbody tr:nth-child(odd),
 #weight-table tbody tr:nth-child(odd) {
-  background: #f3f4f6;
+  background: #f1f5f9;
 }
 
 #food-table td button,
@@ -86,9 +155,9 @@ header h1 {
   color: #312e81;
 }
 
-#streaks {
-  margin-top: 1rem;
-  border: 1px solid #e5e7eb;
+.countdown {
+  font-weight: 600;
+  color: #0f172a;
 }
 
 #detox-list label {
@@ -96,4 +165,24 @@ header h1 {
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
+}
+
+#snapshot-metrics .metric {
+  background: #fff7ed;
+  border-color: #fed7aa;
+}
+
+#calorie-line,
+#weight-chart,
+#deficit-chart,
+#pie-chart,
+#calorie-chart,
+#detox-chart {
+  background: #ffffff;
+  border-radius: 0.75rem;
+  padding: 0.5rem;
+}
+
+footer small {
+  color: #94a3b8;
 }
