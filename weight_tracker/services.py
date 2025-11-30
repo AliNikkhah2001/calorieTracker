@@ -4,7 +4,7 @@ import csv
 import hashlib
 import secrets
 from dataclasses import dataclass
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence
 
@@ -58,6 +58,18 @@ class DailySummary:
 @dataclass
 class WeightHistory:
     entries: List[Dict]
+
+
+@dataclass
+class WorkoutEntry:
+    id: int
+    date: str
+    category: str
+    exercise: str
+    sets: int
+    reps: int
+    weight: float
+    notes: str
 
 
 MET_VALUES = {
@@ -165,6 +177,7 @@ def load_profile(user_id: int) -> Optional[ProfileDTO]:
 
 
 def list_food_items(user_id: Optional[int] = None) -> List[Dict]:
+    usage_counts = get_food_usage_counts(user_id)
     with get_session() as session:
         stmt = (
             select(models.FoodItem)
@@ -172,7 +185,7 @@ def list_food_items(user_id: Optional[int] = None) -> List[Dict]:
             .order_by(models.FoodItem.name.asc())
         )
         items = session.scalars(stmt).all()
-        return [
+        enriched = [
             {
                 "id": item.id,
                 "name": item.name,
@@ -183,9 +196,26 @@ def list_food_items(user_id: Optional[int] = None) -> List[Dict]:
                 "carbs": item.carbs,
                 "category": item.category,
                 "owner_id": item.owner_id,
+                "usage_count": usage_counts.get(item.name.lower(), 0),
             }
             for item in items
         ]
+    enriched.sort(key=lambda row: (-row["usage_count"], row["name"].lower()))
+    return enriched
+
+
+def get_food_usage_counts(user_id: Optional[int]) -> Dict[str, int]:
+    """Return how many times a user has logged each food."""
+
+    if user_id is None:
+        return {}
+    with get_session() as session:
+        stmt = (
+            select(models.FoodLog.food_name, func.count(models.FoodLog.id))
+            .where(models.FoodLog.user_id == user_id)
+            .group_by(models.FoodLog.food_name)
+        )
+        return {name.lower(): count for name, count in session.execute(stmt).all()}
 
 
 def add_food_item(
@@ -361,6 +391,71 @@ def get_weight_history(user_id: int) -> WeightHistory:
         stmt = select(models.WeightEntry).where(models.WeightEntry.user_id == user_id).order_by(models.WeightEntry.date.asc())
         entries = session.scalars(stmt).all()
     return WeightHistory(entries=[{"date": entry.date.isoformat(), "weight": entry.weight} for entry in entries])
+
+
+def log_workout_entry(
+    *,
+    user_id: int,
+    entry_date: date,
+    category: str,
+    exercise: str,
+    sets: int,
+    reps: int,
+    weight: float,
+    notes: str,
+) -> None:
+    with get_session() as session:
+        session.add(
+            models.WorkoutLog(
+                user_id=user_id,
+                date=entry_date,
+                category=category,
+                exercise=exercise,
+                sets=sets,
+                reps=reps,
+                weight=weight,
+                notes=notes,
+            )
+        )
+
+
+def list_workout_entries(user_id: int, *, days: int = 30) -> List[WorkoutEntry]:
+    cutoff = date.today() - timedelta(days=days)
+    with get_session() as session:
+        stmt = (
+            select(models.WorkoutLog)
+            .where(models.WorkoutLog.user_id == user_id, models.WorkoutLog.date >= cutoff)
+            .order_by(models.WorkoutLog.date.desc(), models.WorkoutLog.created_at.desc())
+        )
+        entries = session.scalars(stmt).all()
+    return [
+        WorkoutEntry(
+            id=entry.id,
+            date=entry.date.isoformat(),
+            category=entry.category,
+            exercise=entry.exercise,
+            sets=entry.sets,
+            reps=entry.reps,
+            weight=entry.weight,
+            notes=entry.notes or "",
+        )
+        for entry in entries
+    ]
+
+
+def delete_workout_entries(user_id: int, entry_ids: Sequence[int]) -> None:
+    with get_session() as session:
+        stmt = select(models.WorkoutLog).where(models.WorkoutLog.id.in_(entry_ids), models.WorkoutLog.user_id == user_id)
+        for entry in session.scalars(stmt):
+            session.delete(entry)
+
+
+def get_recent_daily_summaries(user_id: int, profile: ProfileDTO, days: int = 7) -> List[DailySummary]:
+    summaries: List[DailySummary] = []
+    for offset in range(days):
+        target = date.today() - timedelta(days=offset)
+        summaries.append(get_daily_summary(user_id, target, profile))
+    return summaries
 
 
 def seed_food_items() -> None:

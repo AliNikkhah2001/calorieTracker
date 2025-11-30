@@ -46,7 +46,10 @@ class AppState(rx.State):
     today_date: str = date.today().isoformat()
     summary: Dict = {}
     food_items: List[Dict] = []
+    food_groups: List[Dict] = []
     weight_history: List[Dict] = []
+    workout_log: List[Dict] = []
+    insights: Dict[str, float] = {}
     # Derived daily summary fields (typed for UI)
     summary_intake_kcal: float = 0.0
     summary_burn_kcal: float = 0.0
@@ -67,6 +70,15 @@ class AppState(rx.State):
     custom_food_protein: float = 0.0
     custom_food_fat: float = 0.0
     custom_food_carbs: float = 0.0
+
+    # Workout form
+    workout_date: str = date.today().isoformat()
+    workout_category: str = "Chest"
+    workout_exercise: str = "Seated Chest Press"
+    workout_sets: int = 3
+    workout_reps: int = 10
+    workout_weight: float = 20.0
+    workout_notes: str = ""
 
     # Exercise form
     exercise_type: str = "Walking"
@@ -186,6 +198,7 @@ class AppState(rx.State):
             self.summary_macro_carbs = daily.macros.get("carbs", 0.0)
             self.summary_food_log = daily.food_log
             self.summary_exercise_log = daily.exercise_log
+            self._compute_insights()
         else:
             self.summary = {}
             self.summary_intake_kcal = 0.0
@@ -198,6 +211,8 @@ class AppState(rx.State):
             self.summary_food_log = []
             self.summary_exercise_log = []
         self.weight_history = services.get_weight_history(self.user_id).entries
+        self.workout_log = [asdict(entry) for entry in services.list_workout_entries(self.user_id)]
+        self._compute_insights()
 
     def save_profile(self):
         if not self.user_id:
@@ -248,6 +263,25 @@ class AppState(rx.State):
             protein = self.custom_food_protein * qty
             fat = self.custom_food_fat * qty
             carbs = self.custom_food_carbs * qty
+            # Persist custom foods for future reuse
+            existing = next((item for item in self.food_items if item["name"].lower() == food_name.lower()), None)
+            if not existing:
+                try:
+                    services.add_food_item(
+                        user_id=self.user_id,
+                        name=food_name,
+                        measure=measure,
+                        kcal=self.custom_food_kcal,
+                        protein=self.custom_food_protein,
+                        fat=self.custom_food_fat,
+                        carbs=self.custom_food_carbs,
+                        category="Custom",
+                        make_global=False,
+                    )
+                except ValueError as exc:
+                    self.error = str(exc)
+                    return
+                self._refresh_food_items()
         services.log_food(
             user_id=self.user_id,
             entry_date=entry_date,
@@ -390,6 +424,85 @@ class AppState(rx.State):
     def _refresh_food_items(self):
         items = services.list_food_items(self.user_id)
         self.food_items = [{**item, "value": str(item["id"])} for item in items]
+        self.food_groups = self._group_food_items(self.food_items)
+
+    def set_workout_date(self, value: str):
+        self.workout_date = value
+
+    def set_workout_category(self, value: str):
+        self.workout_category = value
+
+    def set_workout_exercise(self, value: str):
+        self.workout_exercise = value
+
+    def set_workout_sets(self, value: str):
+        self.workout_sets = self._to_int(value, self.workout_sets)
+
+    def set_workout_reps(self, value: str):
+        self.workout_reps = self._to_int(value, self.workout_reps)
+
+    def set_workout_weight(self, value: str):
+        self.workout_weight = self._to_float(value, self.workout_weight)
+
+    def set_workout_notes(self, value: str):
+        self.workout_notes = value
+
+    def log_workout_entry(self):
+        if not self.user_id:
+            return
+        services.log_workout_entry(
+            user_id=self.user_id,
+            entry_date=date.fromisoformat(self.workout_date or self.today_date),
+            category=self.workout_category,
+            exercise=self.workout_exercise,
+            sets=int(self.workout_sets),
+            reps=int(self.workout_reps),
+            weight=float(self.workout_weight),
+            notes=self.workout_notes,
+        )
+        self.message = "Workout logged"
+        self.load_user_state()
+
+    def delete_workout_entry(self, entry_id: int):
+        if not self.user_id:
+            return
+        services.delete_workout_entries(self.user_id, [entry_id])
+        self.load_user_state()
+
+    def _group_food_items(self, items: List[Dict]) -> List[Dict]:
+        grouped: Dict[str, List[Dict]] = {}
+        for item in items:
+            grouped.setdefault(item.get("category", "Other"), []).append(item)
+        recent = [item for item in items if item.get("usage_count", 0) > 0]
+        ordered_groups = []
+        if recent:
+            ordered_groups.append({"category": "Recently used", "items": recent})
+        for category in sorted(grouped.keys()):
+            ordered_groups.append({"category": category, "items": grouped[category]})
+        return ordered_groups
+
+    def _compute_insights(self):
+        if not self.user_id or not self.profile_metrics:
+            self.insights = {}
+            return
+        profile = ProfileDTO(**self.profile_metrics)
+        summaries = services.get_recent_daily_summaries(self.user_id, profile, days=7)
+        if self.weight_history:
+            start_weight = float(self.weight_history[0]["weight"])
+            current_weight = float(self.weight_history[-1]["weight"])
+            diff = current_weight - start_weight
+            percent = (diff / start_weight * 100) if start_weight else 0
+        else:
+            diff = 0
+            percent = 0
+        avg_net = sum(day.net_kcal for day in summaries) / len(summaries) if summaries else 0
+        days_logged = len([day for day in summaries if day.intake_kcal > 0 or day.burn_kcal > 0])
+        self.insights = {
+            "weight_change": diff,
+            "weight_change_pct": percent,
+            "avg_net": avg_net,
+            "days_logged": days_logged,
+        }
 
     @staticmethod
     def _parse_time(value: str):

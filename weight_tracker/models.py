@@ -92,6 +92,25 @@ class ExerciseLog(Base):
     user: Mapped[User] = relationship(back_populates="exercise_logs")
 
 
+class WorkoutLog(Base):
+    """Detailed strength or cardio workout entries."""
+
+    __tablename__ = "workout_logs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    date: Mapped[date] = mapped_column(Date, default=date.today, index=True)
+    category: Mapped[str] = mapped_column(String(80), default="General")
+    exercise: Mapped[str] = mapped_column(String(120))
+    sets: Mapped[int] = mapped_column(Integer, default=0)
+    reps: Mapped[int] = mapped_column(Integer, default=0)
+    weight: Mapped[float] = mapped_column(Float, default=0.0)
+    notes: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    user: Mapped[User] = relationship(backref="workout_logs")
+
+
 class WeightEntry(Base):
     __tablename__ = "weight_logs"
 
