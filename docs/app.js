@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'calorie-tracker-state-v2';
+const STORAGE_KEY = 'calorie-tracker-state-v3';
 let calorieChart;
 let weightChart;
 let deficitChart;
@@ -6,46 +6,41 @@ let deficitTrendChart;
 let pieChart;
 let detoxChart;
 let catalogs = { foods: [], activities: [] };
+let foodSearchTerm = '';
 
 let state = loadState();
+let activeTab = 'insights';
+let setActiveTabFn = () => {};
 
 init();
 
 function loadState() {
   const stored = localStorage.getItem(STORAGE_KEY);
+  const buildDefault = () => ({
+    activeUserId: 'default',
+    users: { default: defaultUser('Default') },
+  });
   if (stored) {
     try {
       const parsed = JSON.parse(stored);
-      if (parsed.users && parsed.activeUserId) return parsed;
+      if (parsed.users && parsed.activeUserId) {
+        Object.entries(parsed.users).forEach(([id, user]) => {
+          parsed.users[id] = ensureUserSchema(user);
+        });
+        return parsed;
+      }
       // migrate from v1
-      return {
-        activeUserId: 'default',
-        users: {
-          default: {
-            profile: parsed.profile || defaultProfile(),
-            foods: parsed.foods || [],
-            exercises: parsed.exercises || [],
-            weights: parsed.weights || [],
-            detox: defaultDetoxState(),
-          },
-        },
-      };
+      const migrated = buildDefault();
+      migrated.users.default.profile = parsed.profile || defaultProfile();
+      migrated.users.default.foods = parsed.foods || [];
+      migrated.users.default.exercises = parsed.exercises || [];
+      migrated.users.default.weights = parsed.weights || [];
+      return migrated;
     } catch (e) {
       console.error('Bad stored state', e);
     }
   }
-  return {
-    activeUserId: 'default',
-    users: {
-      default: {
-        profile: defaultProfile(),
-        foods: [],
-        exercises: [],
-        weights: [],
-        detox: defaultDetoxState(),
-      },
-    },
-  };
+  return buildDefault();
 }
 
 function defaultProfile() {
@@ -59,6 +54,33 @@ function defaultProfile() {
     deficit: 500,
     fastingStart: '18:00',
     fastingEnd: '20:00',
+  };
+}
+
+function defaultUser(name = 'Default') {
+  return {
+    profile: { ...defaultProfile(), name },
+    foods: [],
+    exercises: [],
+    weights: [],
+    detox: defaultDetoxState(),
+    customFoods: [],
+    recentFoods: [],
+    favoriteFoods: [],
+    setupComplete: false,
+  };
+}
+
+function ensureUserSchema(user) {
+  return {
+    ...defaultUser(user?.profile?.name || 'User'),
+    ...user,
+    profile: { ...defaultProfile(), ...(user?.profile || {}) },
+    detox: user?.detox || defaultDetoxState(),
+    customFoods: user?.customFoods || [],
+    recentFoods: user?.recentFoods || [],
+    favoriteFoods: user?.favoriteFoods || [],
+    setupComplete: user?.setupComplete || false,
   };
 }
 
@@ -93,6 +115,9 @@ async function init() {
   bindWeightControls();
   bindDetoxControls();
   document.getElementById('log-date').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('detox-date').value = document.getElementById('log-date').value;
+  const insightDate = document.getElementById('insight-date');
+  if (insightDate) insightDate.value = document.getElementById('log-date').value;
   await loadCatalog();
   renderAll();
   startCountdown();
@@ -109,22 +134,34 @@ function registerServiceWorker() {
 
 function bindTabs() {
   const tabs = document.querySelectorAll('.tab');
+  const setActiveTab = (name, { force } = {}) => {
+    const requiresSetup = !getUser().setupComplete;
+    let target = name;
+    if (requiresSetup && name !== 'account' && !force) {
+      target = 'account';
+      const hint = document.getElementById('setup-hint');
+      if (hint) hint.textContent = 'Complete your profile to unlock all tabs.';
+    }
+    activeTab = target;
+    tabs.forEach((t) => t.classList.toggle('active', t.dataset.tab === target));
+    document.querySelectorAll('.tab-panel').forEach((panel) => panel.classList.remove('active'));
+    const panel = document.getElementById(`panel-${target}`);
+    if (panel) panel.classList.add('active');
+    if (pieChart) pieChart.resize();
+    if (deficitChart) deficitChart.resize();
+    if (deficitTrendChart) deficitTrendChart.resize();
+    if (weightChart) weightChart.resize();
+    if (calorieChart) calorieChart.resize();
+    if (detoxChart) detoxChart.resize();
+  };
+  setActiveTabFn = setActiveTab;
+
   tabs.forEach((tab) => {
-    tab.addEventListener('click', () => {
-      tabs.forEach((t) => t.classList.remove('active'));
-      tab.classList.add('active');
-      document.querySelectorAll('.tab-panel').forEach((panel) => {
-        panel.classList.remove('active');
-      });
-      document.getElementById(`panel-${tab.dataset.tab}`).classList.add('active');
-      if (pieChart) pieChart.resize();
-      if (deficitChart) deficitChart.resize();
-      if (deficitTrendChart) deficitTrendChart.resize();
-      if (weightChart) weightChart.resize();
-      if (calorieChart) calorieChart.resize();
-      if (detoxChart) detoxChart.resize();
-    });
+    tab.addEventListener('click', () => setActiveTab(tab.dataset.tab));
   });
+
+  const initialTab = getUser().setupComplete ? 'insights' : 'account';
+  setActiveTab(initialTab, { force: true });
 }
 
 async function loadCatalog() {
@@ -203,6 +240,12 @@ function bindProfileForm() {
     form.deficit.value = profile.deficit;
     fastingStart.value = profile.fastingStart;
     fastingEnd.value = profile.fastingEnd;
+    const hint = document.getElementById('setup-hint');
+    if (hint) {
+      hint.textContent = getUser().setupComplete
+        ? 'Profile complete. You can reset to revisit onboarding.'
+        : 'Complete and save to unlock insights.';
+    }
   };
 
   form.addEventListener('submit', (e) => {
@@ -216,9 +259,19 @@ function bindProfileForm() {
     profile.deficit = parseFloat(form.deficit.value) || 0;
     profile.fastingStart = fastingStart.value || '18:00';
     profile.fastingEnd = fastingEnd.value || '20:00';
+    getUser().setupComplete = true;
     saveState();
     renderAll();
   });
+
+  const resetBtn = document.getElementById('reset-setup');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      getUser().setupComplete = false;
+      saveState();
+      setActiveTabFn('account', { force: true });
+    });
+  }
 
   fill();
 }
@@ -245,6 +298,18 @@ function bindFoodControls() {
     const kcal = Number.isFinite(kcalInput) && kcalInput > 0 ? kcalInput : calcCalories(macros);
     const name = document.getElementById('food-name').value || selectedFood?.name || 'Custom';
 
+    const existingFood = getAllFoods().find((f) => f.name.toLowerCase() === name.toLowerCase());
+    if (!existingFood) {
+      user.customFoods.push({
+        category: 'Custom',
+        name,
+        kcal: +(kcal || calcCalories(macros)).toFixed(1),
+        protein: +(macros.protein || 0).toFixed(1),
+        fat: +(macros.fat || 0).toFixed(1),
+        carbs: +(macros.carbs || 0).toFixed(1),
+      });
+    }
+
     user.foods.push({
       id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`,
       date,
@@ -257,6 +322,8 @@ function bindFoodControls() {
       carbs: +(macros.carbs * qty).toFixed(1),
     });
 
+    user.recentFoods = [name, ...user.recentFoods.filter((f) => f !== name)].slice(0, 10);
+
     saveState();
     clearFoodInputs();
     renderAll();
@@ -264,7 +331,7 @@ function bindFoodControls() {
 
   document.getElementById('food-select').addEventListener('change', (e) => {
     const name = e.target.options[e.target.selectedIndex]?.dataset?.name || e.target.value;
-    const food = catalogs.foods.find((f) => f.name === name);
+    const food = getAllFoods().find((f) => f.name === name);
     if (!food) return;
     document.getElementById('food-name').value = food.name;
     document.getElementById('food-protein').value = food.protein;
@@ -273,7 +340,29 @@ function bindFoodControls() {
     document.getElementById('food-kcal').value = food.kcal;
   });
 
-  document.getElementById('log-date').addEventListener('change', renderAll);
+  const search = document.getElementById('food-search');
+  if (search) {
+    search.addEventListener('input', (e) => {
+      foodSearchTerm = e.target.value.toLowerCase();
+      populateFoodSelect();
+    });
+  }
+
+  document.getElementById('log-date').addEventListener('change', (e) => {
+    const insightDate = document.getElementById('insight-date');
+    if (insightDate) insightDate.value = e.target.value;
+    document.getElementById('detox-date').value = e.target.value;
+    renderAll();
+  });
+
+  const insightDate = document.getElementById('insight-date');
+  if (insightDate) {
+    insightDate.addEventListener('change', (e) => {
+      document.getElementById('log-date').value = e.target.value;
+      document.getElementById('detox-date').value = e.target.value;
+      renderAll();
+    });
+  }
 }
 
 function bindExerciseControls() {
@@ -365,16 +454,40 @@ function populateFoodSelect() {
   manual.textContent = 'Manual entry';
   select.appendChild(manual);
 
-  const grouped = catalogs.foods.reduce((acc, food) => {
-    acc[food.category] = acc[food.category] || [];
-    acc[food.category].push(food);
+  const foods = getAllFoods().filter((food) => {
+    if (!foodSearchTerm) return true;
+    return (
+      food.name.toLowerCase().includes(foodSearchTerm) ||
+      (food.category || '').toLowerCase().includes(foodSearchTerm)
+    );
+  });
+
+  const recent = getUser()
+    .recentFoods.map((name) => foods.find((f) => f.name === name) || { name, category: 'Recent', kcal: '' })
+    .filter(Boolean);
+  if (recent.length) {
+    const optgroup = document.createElement('optgroup');
+    optgroup.label = 'Recently used';
+    recent.forEach((food) => {
+      const option = document.createElement('option');
+      option.value = food.name;
+      option.dataset.name = food.name;
+      option.textContent = `${food.name}${food.kcal ? ` (${food.kcal} kcal)` : ''}`;
+      optgroup.appendChild(option);
+    });
+    select.appendChild(optgroup);
+  }
+
+  const grouped = foods.reduce((acc, food) => {
+    acc[food.category || 'Misc'] = acc[food.category || 'Misc'] || [];
+    acc[food.category || 'Misc'].push(food);
     return acc;
   }, {});
 
-  Object.entries(grouped).forEach(([category, foods]) => {
+  Object.entries(grouped).forEach(([category, list]) => {
     const optgroup = document.createElement('optgroup');
     optgroup.label = category;
-    foods.forEach((food) => {
+    list.forEach((food) => {
       const option = document.createElement('option');
       option.value = food.name;
       option.dataset.name = food.name;
@@ -384,7 +497,19 @@ function populateFoodSelect() {
     select.appendChild(optgroup);
   });
 
-  document.getElementById('food-db-count').textContent = `${catalogs.foods.length} foods ready (edit data.json)`;
+  document.getElementById('food-db-count').textContent = `${foods.length} foods ready (edit data.json)`;
+}
+
+function getAllFoods() {
+  const user = getUser();
+  const merged = [...catalogs.foods, ...(user.customFoods || [])];
+  const seen = new Set();
+  return merged.filter((food) => {
+    const key = food.name.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 function populateActivitySelect() {
@@ -410,6 +535,7 @@ function populateActivitySelect() {
 }
 
 function renderAll() {
+  populateFoodSelect();
   renderProfileMetrics();
   renderFoodTable();
   renderExerciseTable();
@@ -510,8 +636,7 @@ function renderSummary() {
 function renderSnapshotMetrics() {
   const date = document.getElementById('log-date').value;
   const summary = summarizeDate(date);
-  const metrics = document.getElementById('snapshot-metrics');
-  metrics.innerHTML = `
+  const template = `
     <div class="metric"><div>Current weight</div><div class="bold-metric">${summary.currentWeight.toFixed(1)} kg</div></div>
     <div class="metric"><div>Predicted weight</div><div class="bold-metric">${summary.predictedWeight.toFixed(1)} kg</div></div>
     <div class="metric"><div>Weekly change</div><div class="bold-metric">${summary.weeklyChange.toFixed(1)} kg</div></div>
@@ -521,6 +646,10 @@ function renderSnapshotMetrics() {
     <div class="metric"><div>Intake</div><div class="bold-metric">${summary.intake.toFixed(0)} kcal</div></div>
     <div class="metric"><div>Net deficit</div><div class="bold-metric">${summary.deficit.toFixed(0)} kcal</div></div>
   `;
+  const metrics = document.getElementById('snapshot-metrics');
+  const metricsAlt = document.getElementById('snapshot-metrics-alt');
+  if (metrics) metrics.innerHTML = template;
+  if (metricsAlt) metricsAlt.innerHTML = template;
 }
 
 function renderWeightTable() {
@@ -541,12 +670,22 @@ function renderWeightTable() {
 
 function renderDetox() {
   const user = getUser();
-  const container = document.getElementById('detox-list');
-  container.innerHTML = '';
+  const list = document.getElementById('detox-items');
+  const inputs = document.getElementById('detox-inputs');
+  if (list) list.innerHTML = '';
+  if (inputs) inputs.innerHTML = '';
   user.detox.items.forEach((item) => {
-    const wrapper = document.createElement('label');
-    wrapper.innerHTML = `${item.label} ${inputForDetox(item)}`;
-    container.appendChild(wrapper);
+    if (list) {
+      const badge = document.createElement('div');
+      badge.className = 'pill';
+      badge.textContent = `${item.label} (${item.type})`;
+      list.appendChild(badge);
+    }
+    if (inputs) {
+      const wrapper = document.createElement('label');
+      wrapper.innerHTML = `${item.label} ${inputForDetox(item)}`;
+      inputs.appendChild(wrapper);
+    }
   });
   const date = document.getElementById('log-date').value;
   const entry = user.detox.daily.find((d) => d.date === date);
@@ -615,9 +754,12 @@ function formatDays(value) {
 function renderStreaks() {
   const streakEl = document.getElementById('streaks');
   const info = computeStreakInfo();
-  streakEl.innerHTML = `
+  const template = `
     <strong>Streak:</strong> ${info.days} days (${info.months} months, ${info.hours} hours) on fasting + detox plan
   `;
+  if (streakEl) streakEl.innerHTML = template;
+  const alt = document.getElementById('streaks-alt');
+  if (alt) alt.innerHTML = template;
 }
 
 function computeStreakInfo() {
