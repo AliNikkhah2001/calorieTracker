@@ -1,17 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-labelledby="title desc">
-  <title id="title">Calorie Tracker Icon</title>
-  <desc id="desc">Minimal dumbbell and flame for the calorie tracker PWA</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" fill="none">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0f172a" />
-      <stop offset="100%" stop-color="#1d4ed8" />
+    <linearGradient id="g" x1="12" y1="80" x2="84" y2="16" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ef4444" />
+      <stop offset="1" stop-color="#f97316" />
     </linearGradient>
   </defs>
-  <rect width="192" height="192" rx="28" fill="#f8fafc" stroke="#0f172a" stroke-width="6" />
-  <path d="M60 128c0-18 12-32 36-40-8 12-4 22 2 28 10-6 20-17 22-32 20 22 8 60-20 68-22 6-40-8-40-24z" fill="url(#g)" stroke="#0f172a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
-  <g fill="none" stroke="#0f172a" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M44 86h20m64 0h20" />
-    <path d="M76 66v40m40-40v40" />
-    <rect x="56" y="76" width="80" height="20" rx="6" />
-  </g>
+  <rect x="6" y="6" width="84" height="84" rx="20" fill="#0f172a" />
+  <path
+    d="M48 10c6 12-2 18 2 30 3 10 13 12 13 24C63 78 56 86 48 86s-15-8-15-22c0-9 6-14 6-20C39 32 25 26 28 12c10 10 18 2 20-2Z"
+    fill="url(#g)"
+    stroke="#fff"
+    stroke-width="2"
+    stroke-linejoin="round"
+  />
+  <circle cx="48" cy="60" r="10" fill="#fff" opacity="0.15" />
 </svg>

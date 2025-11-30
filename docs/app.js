@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'calorie-tracker-state-v2';
+const STORAGE_KEY = 'calorie-tracker-state-v3';
 let calorieChart;
 let weightChart;
 let deficitChart;
@@ -6,46 +6,41 @@ let deficitTrendChart;
 let pieChart;
 let detoxChart;
 let catalogs = { foods: [], activities: [] };
+let foodSearchTerm = '';
 
 let state = loadState();
+let activeTab = 'insights';
+let setActiveTabFn = () => {};
 
 init();
 
 function loadState() {
   const stored = localStorage.getItem(STORAGE_KEY);
+  const buildDefault = () => ({
+    activeUserId: 'default',
+    users: { default: defaultUser('Default') },
+  });
   if (stored) {
     try {
       const parsed = JSON.parse(stored);
-      if (parsed.users && parsed.activeUserId) return parsed;
+      if (parsed.users && parsed.activeUserId) {
+        Object.entries(parsed.users).forEach(([id, user]) => {
+          parsed.users[id] = ensureUserSchema(user);
+        });
+        return parsed;
+      }
       // migrate from v1
-      return {
-        activeUserId: 'default',
-        users: {
-          default: {
-            profile: parsed.profile || defaultProfile(),
-            foods: parsed.foods || [],
-            exercises: parsed.exercises || [],
-            weights: parsed.weights || [],
-            detox: defaultDetoxState(),
-          },
-        },
-      };
+      const migrated = buildDefault();
+      migrated.users.default.profile = parsed.profile || defaultProfile();
+      migrated.users.default.foods = parsed.foods || [];
+      migrated.users.default.exercises = parsed.exercises || [];
+      migrated.users.default.weights = parsed.weights || [];
+      return migrated;
     } catch (e) {
       console.error('Bad stored state', e);
     }
   }
-  return {
-    activeUserId: 'default',
-    users: {
-      default: {
-        profile: defaultProfile(),
-        foods: [],
-        exercises: [],
-        weights: [],
-        detox: defaultDetoxState(),
-      },
-    },
-  };
+  return buildDefault();
 }
 
 function defaultProfile() {
@@ -60,6 +55,62 @@ function defaultProfile() {
     fastingStart: '18:00',
     fastingEnd: '20:00',
   };
+}
+
+function defaultUser(name = 'Default') {
+  return {
+    profile: { ...defaultProfile(), name },
+    foods: [],
+    exercises: [],
+    weights: [],
+    detox: defaultDetoxState(),
+    customFoods: [],
+    recentFoods: [],
+    favoriteFoods: [],
+    recentExercises: [],
+    setupComplete: false,
+  };
+}
+
+function ensureUserSchema(user) {
+  return {
+    ...defaultUser(user?.profile?.name || 'User'),
+    ...user,
+    profile: { ...defaultProfile(), ...(user?.profile || {}) },
+    detox: user?.detox || defaultDetoxState(),
+    customFoods: user?.customFoods || [],
+    recentFoods: user?.recentFoods || [],
+    favoriteFoods: user?.favoriteFoods || [],
+    recentExercises: user?.recentExercises || [],
+    setupComplete: user?.setupComplete || false,
+    exercises: (user?.exercises || []).map((ex) => normalizeExercise(ex)),
+  };
+}
+
+function normalizeExercise(exercise) {
+  const base = { ...exercise };
+  base.type = exercise?.type || (exercise?.met ? 'cardio' : 'strength');
+  base.date = exercise?.date || new Date().toISOString().slice(0, 10);
+  base.time = exercise?.time || '12:00';
+  base.mins = parseFloat(exercise?.mins || exercise?.duration || 0) || 0;
+  if (base.type === 'strength') {
+    base.sets = parseInt(exercise?.sets, 10) || 1;
+    base.reps = parseInt(exercise?.reps, 10) || 8;
+    base.weight = parseFloat(exercise?.weight) || 0;
+    base.volume = (base.sets || 0) * (base.reps || 0) * (base.weight || 0);
+    base.notes = exercise?.notes || '';
+    base.met = parseFloat(exercise?.met || 4) || 4;
+  } else {
+    base.met = parseFloat(exercise?.met) || 3.5;
+    base.distance = parseFloat(exercise?.distance) || 0;
+    base.incline = parseFloat(exercise?.incline) || 0;
+    base.label = exercise?.label || exercise?.name || getMetLabel(base.met);
+  }
+  if (!base.kcalBurn && base.mins) {
+    const weightGuess = state?.users?.[state.activeUserId]?.profile?.weight || 70;
+    base.kcalBurn = computeKcalFromMet(base.met, base.mins, weightGuess);
+  }
+  return base;
 }
 
 function defaultDetoxState() {
@@ -92,7 +143,8 @@ async function init() {
   bindExerciseControls();
   bindWeightControls();
   bindDetoxControls();
-  document.getElementById('log-date').value = new Date().toISOString().slice(0, 10);
+  const today = new Date().toISOString().slice(0, 10);
+  syncDateInputs(today);
   await loadCatalog();
   renderAll();
   startCountdown();
@@ -107,36 +159,60 @@ function registerServiceWorker() {
   }
 }
 
+function syncDateInputs(value, sourceId) {
+  const ids = ['log-date', 'insight-date', 'detox-date', 'exercise-date'];
+  ids.forEach((id) => {
+    const el = document.getElementById(id);
+    if (el && (sourceId !== id || el.value !== value)) {
+      el.value = value;
+    }
+  });
+}
+
 function bindTabs() {
   const tabs = document.querySelectorAll('.tab');
+  const setActiveTab = (name, { force } = {}) => {
+    const requiresSetup = !getUser().setupComplete;
+    let target = name;
+    if (requiresSetup && name !== 'account' && !force) {
+      target = 'account';
+      const hint = document.getElementById('setup-hint');
+      if (hint) hint.textContent = 'Complete your profile to unlock all tabs.';
+    }
+    activeTab = target;
+    tabs.forEach((t) => t.classList.toggle('active', t.dataset.tab === target));
+    document.querySelectorAll('.tab-panel').forEach((panel) => panel.classList.remove('active'));
+    const panel = document.getElementById(`panel-${target}`);
+    if (panel) panel.classList.add('active');
+    if (pieChart) pieChart.resize();
+    if (deficitChart) deficitChart.resize();
+    if (deficitTrendChart) deficitTrendChart.resize();
+    if (weightChart) weightChart.resize();
+    if (calorieChart) calorieChart.resize();
+    if (detoxChart) detoxChart.resize();
+  };
+  setActiveTabFn = setActiveTab;
+
   tabs.forEach((tab) => {
-    tab.addEventListener('click', () => {
-      tabs.forEach((t) => t.classList.remove('active'));
-      tab.classList.add('active');
-      document.querySelectorAll('.tab-panel').forEach((panel) => {
-        panel.classList.remove('active');
-      });
-      document.getElementById(`panel-${tab.dataset.tab}`).classList.add('active');
-      if (pieChart) pieChart.resize();
-      if (deficitChart) deficitChart.resize();
-      if (deficitTrendChart) deficitTrendChart.resize();
-      if (weightChart) weightChart.resize();
-      if (calorieChart) calorieChart.resize();
-      if (detoxChart) detoxChart.resize();
-    });
+    tab.addEventListener('click', () => setActiveTab(tab.dataset.tab));
   });
+
+  const initialTab = getUser().setupComplete ? 'insights' : 'account';
+  setActiveTab(initialTab, { force: true });
 }
 
 async function loadCatalog() {
   try {
     const res = await fetch('data.json');
     catalogs = await res.json();
+    catalogs.exercises = catalogs.exercises || [];
   } catch (e) {
     console.warn('Could not load catalog', e);
-    catalogs = { foods: [], activities: [] };
+    catalogs = { foods: [], activities: [], exercises: [] };
   }
   populateFoodSelect();
   populateActivitySelect();
+  populateStrengthSelect();
 }
 
 function getUser() {
@@ -203,6 +279,12 @@ function bindProfileForm() {
     form.deficit.value = profile.deficit;
     fastingStart.value = profile.fastingStart;
     fastingEnd.value = profile.fastingEnd;
+    const hint = document.getElementById('setup-hint');
+    if (hint) {
+      hint.textContent = getUser().setupComplete
+        ? 'Profile complete. You can reset to revisit onboarding.'
+        : 'Complete and save to unlock insights.';
+    }
   };
 
   form.addEventListener('submit', (e) => {
@@ -216,9 +298,19 @@ function bindProfileForm() {
     profile.deficit = parseFloat(form.deficit.value) || 0;
     profile.fastingStart = fastingStart.value || '18:00';
     profile.fastingEnd = fastingEnd.value || '20:00';
+    getUser().setupComplete = true;
     saveState();
     renderAll();
   });
+
+  const resetBtn = document.getElementById('reset-setup');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      getUser().setupComplete = false;
+      saveState();
+      setActiveTabFn('account', { force: true });
+    });
+  }
 
   fill();
 }
@@ -245,6 +337,18 @@ function bindFoodControls() {
     const kcal = Number.isFinite(kcalInput) && kcalInput > 0 ? kcalInput : calcCalories(macros);
     const name = document.getElementById('food-name').value || selectedFood?.name || 'Custom';
 
+    const existingFood = getAllFoods().find((f) => f.name.toLowerCase() === name.toLowerCase());
+    if (!existingFood) {
+      user.customFoods.push({
+        category: 'Custom',
+        name,
+        kcal: +(kcal || calcCalories(macros)).toFixed(1),
+        protein: +(macros.protein || 0).toFixed(1),
+        fat: +(macros.fat || 0).toFixed(1),
+        carbs: +(macros.carbs || 0).toFixed(1),
+      });
+    }
+
     user.foods.push({
       id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`,
       date,
@@ -257,6 +361,8 @@ function bindFoodControls() {
       carbs: +(macros.carbs * qty).toFixed(1),
     });
 
+    user.recentFoods = [name, ...user.recentFoods.filter((f) => f !== name)].slice(0, 10);
+
     saveState();
     clearFoodInputs();
     renderAll();
@@ -264,7 +370,7 @@ function bindFoodControls() {
 
   document.getElementById('food-select').addEventListener('change', (e) => {
     const name = e.target.options[e.target.selectedIndex]?.dataset?.name || e.target.value;
-    const food = catalogs.foods.find((f) => f.name === name);
+    const food = getAllFoods().find((f) => f.name === name);
     if (!food) return;
     document.getElementById('food-name').value = food.name;
     document.getElementById('food-protein').value = food.protein;
@@ -273,33 +379,115 @@ function bindFoodControls() {
     document.getElementById('food-kcal').value = food.kcal;
   });
 
-  document.getElementById('log-date').addEventListener('change', renderAll);
+  const search = document.getElementById('food-search');
+  if (search) {
+    search.addEventListener('input', (e) => {
+      foodSearchTerm = e.target.value.toLowerCase();
+      populateFoodSelect();
+    });
+  }
+
+  document.getElementById('log-date').addEventListener('change', (e) => {
+    syncDateInputs(e.target.value, 'log-date');
+    renderAll();
+  });
+
+  const insightDate = document.getElementById('insight-date');
+  if (insightDate) {
+    insightDate.addEventListener('change', (e) => {
+      syncDateInputs(e.target.value, 'insight-date');
+      renderAll();
+    });
+  }
+
+  const detoxDate = document.getElementById('detox-date');
+  if (detoxDate) {
+    detoxDate.addEventListener('change', (e) => {
+      syncDateInputs(e.target.value, 'detox-date');
+      renderAll();
+    });
+  }
+
+  const exerciseDate = document.getElementById('exercise-date');
+  if (exerciseDate) {
+    exerciseDate.addEventListener('change', (e) => {
+      syncDateInputs(e.target.value, 'exercise-date');
+      renderAll();
+    });
+  }
 }
 
 function bindExerciseControls() {
-  const select = document.getElementById('exercise-type');
+  const cardioSelect = document.getElementById('exercise-type');
+  const strengthSelect = document.getElementById('strength-exercise');
 
   document.getElementById('add-exercise').addEventListener('click', () => {
     const user = getUser();
-    const date = document.getElementById('log-date').value;
+    const date = document.getElementById('exercise-date').value;
     const time = document.getElementById('exercise-time').value || '18:00';
     const mins = parseFloat(document.getElementById('exercise-mins').value) || 0;
-    const met = parseFloat(select.value) || 3.5;
+    const met = parseFloat(cardioSelect.value) || 3.5;
     if (mins <= 0) return;
     const weight = getWeightForDate(date);
-    const kcalBurn = (met * 3.5 * weight) / 200 * mins;
+    const kcalBurn = computeKcalFromMet(met, mins, weight);
+    const distance = parseFloat(document.getElementById('exercise-distance').value) || 0;
+    const incline = parseFloat(document.getElementById('exercise-incline').value) || 0;
 
     user.exercises.push({
       id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`,
+      type: 'cardio',
       date,
       time,
       met,
       mins,
+      distance,
+      incline,
       kcalBurn: +kcalBurn.toFixed(1),
       label: getMetLabel(met),
     });
+    user.recentExercises = [getMetLabel(met), ...user.recentExercises.filter((n) => n !== getMetLabel(met))].slice(0, 8);
     saveState();
     document.getElementById('exercise-mins').value = '';
+    document.getElementById('exercise-distance').value = '';
+    document.getElementById('exercise-incline').value = '';
+    renderAll();
+  });
+
+  document.getElementById('add-strength').addEventListener('click', () => {
+    const user = getUser();
+    const date = document.getElementById('exercise-date').value;
+    const time = document.getElementById('strength-time').value || '18:00';
+    const sets = parseInt(document.getElementById('strength-sets').value, 10) || 0;
+    const reps = parseInt(document.getElementById('strength-reps').value, 10) || 0;
+    const weight = parseFloat(document.getElementById('strength-weight').value) || 0;
+    const mins = parseFloat(document.getElementById('strength-mins').value) || 0;
+    if (!sets || !reps) return;
+    const selection = strengthSelect.options[strengthSelect.selectedIndex];
+    const name = selection?.dataset?.name || selection?.value || 'Strength work';
+    const met = parseFloat(selection?.dataset?.met) || 4;
+    const volume = sets * reps * weight;
+    const kcalBurn = mins ? computeKcalFromMet(met, mins, getWeightForDate(date)) : 0;
+    const notes = document.getElementById('strength-notes').value;
+
+    user.exercises.push({
+      id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`,
+      type: 'strength',
+      date,
+      time,
+      sets,
+      reps,
+      weight,
+      mins,
+      volume,
+      kcalBurn: +kcalBurn.toFixed(1),
+      label: name,
+      notes,
+      met,
+    });
+    user.recentExercises = [name, ...user.recentExercises.filter((n) => n !== name)].slice(0, 8);
+    saveState();
+    document.getElementById('strength-notes').value = '';
+    document.getElementById('strength-mins').value = '';
     renderAll();
   });
 }
@@ -365,16 +553,40 @@ function populateFoodSelect() {
   manual.textContent = 'Manual entry';
   select.appendChild(manual);
 
-  const grouped = catalogs.foods.reduce((acc, food) => {
-    acc[food.category] = acc[food.category] || [];
-    acc[food.category].push(food);
+  const foods = getAllFoods().filter((food) => {
+    if (!foodSearchTerm) return true;
+    return (
+      food.name.toLowerCase().includes(foodSearchTerm) ||
+      (food.category || '').toLowerCase().includes(foodSearchTerm)
+    );
+  });
+
+  const recent = getUser()
+    .recentFoods.map((name) => foods.find((f) => f.name === name) || { name, category: 'Recent', kcal: '' })
+    .filter(Boolean);
+  if (recent.length) {
+    const optgroup = document.createElement('optgroup');
+    optgroup.label = 'Recently used';
+    recent.forEach((food) => {
+      const option = document.createElement('option');
+      option.value = food.name;
+      option.dataset.name = food.name;
+      option.textContent = `${food.name}${food.kcal ? ` (${food.kcal} kcal)` : ''}`;
+      optgroup.appendChild(option);
+    });
+    select.appendChild(optgroup);
+  }
+
+  const grouped = foods.reduce((acc, food) => {
+    acc[food.category || 'Misc'] = acc[food.category || 'Misc'] || [];
+    acc[food.category || 'Misc'].push(food);
     return acc;
   }, {});
 
-  Object.entries(grouped).forEach(([category, foods]) => {
+  Object.entries(grouped).forEach(([category, list]) => {
     const optgroup = document.createElement('optgroup');
     optgroup.label = category;
-    foods.forEach((food) => {
+    list.forEach((food) => {
       const option = document.createElement('option');
       option.value = food.name;
       option.dataset.name = food.name;
@@ -384,7 +596,19 @@ function populateFoodSelect() {
     select.appendChild(optgroup);
   });
 
-  document.getElementById('food-db-count').textContent = `${catalogs.foods.length} foods ready (edit data.json)`;
+  document.getElementById('food-db-count').textContent = `${foods.length} foods ready (edit data.json)`;
+}
+
+function getAllFoods() {
+  const user = getUser();
+  const merged = [...catalogs.foods, ...(user.customFoods || [])];
+  const seen = new Set();
+  return merged.filter((food) => {
+    const key = food.name.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 function populateActivitySelect() {
@@ -395,6 +619,20 @@ function populateActivitySelect() {
     acc[act.category].push(act);
     return acc;
   }, {});
+  const recents = getUser().recentExercises
+    .map((name) => catalogs.activities.find((a) => a.label === name))
+    .filter(Boolean);
+  if (recents.length) {
+    const optgroup = document.createElement('optgroup');
+    optgroup.label = 'Recently used';
+    recents.forEach((act) => {
+      const option = document.createElement('option');
+      option.value = act.met;
+      option.textContent = `${act.label} (${act.met} METs)`;
+      optgroup.appendChild(option);
+    });
+    select.appendChild(optgroup);
+  }
   Object.entries(grouped).forEach(([category, acts]) => {
     const optgroup = document.createElement('optgroup');
     optgroup.label = category;
@@ -409,7 +647,54 @@ function populateActivitySelect() {
   select.value = catalogs.activities[0]?.met || 3.5;
 }
 
+function populateStrengthSelect() {
+  const select = document.getElementById('strength-exercise');
+  if (!select) return;
+  select.innerHTML = '';
+  const grouped = catalogs.exercises.reduce((acc, ex) => {
+    acc[ex.group] = acc[ex.group] || {};
+    acc[ex.group][ex.machine] = acc[ex.group][ex.machine] || [];
+    acc[ex.group][ex.machine].push(ex);
+    return acc;
+  }, {});
+
+  const recents = getUser().recentExercises
+    .map((name) => catalogs.exercises.find((e) => e.name === name))
+    .filter(Boolean);
+  if (recents.length) {
+    const optgroup = document.createElement('optgroup');
+    optgroup.label = 'Recently used';
+    recents.forEach((ex) => {
+      const option = document.createElement('option');
+      option.value = ex.name;
+      option.dataset.name = ex.name;
+      option.dataset.met = ex.met || 4;
+      option.textContent = `${ex.name} (${ex.machine})`;
+      optgroup.appendChild(option);
+    });
+    select.appendChild(optgroup);
+  }
+
+  Object.entries(grouped).forEach(([group, machines]) => {
+    const groupOpt = document.createElement('optgroup');
+    groupOpt.label = group;
+    Object.entries(machines).forEach(([machine, list]) => {
+      list.forEach((ex) => {
+        const option = document.createElement('option');
+        option.value = ex.name;
+        option.dataset.name = ex.name;
+        option.dataset.met = ex.met || 4;
+        option.textContent = `${machine} — ${ex.name}`;
+        groupOpt.appendChild(option);
+      });
+    });
+    select.appendChild(groupOpt);
+  });
+  select.value = select.options[0]?.value;
+}
+
 function renderAll() {
+  populateFoodSelect();
   renderProfileMetrics();
   renderFoodTable();
   renderExerciseTable();
@@ -460,25 +745,60 @@ function renderFoodTable() {
 }
 
 function renderExerciseTable() {
-  const tbody = document.querySelector('#exercise-table tbody');
-  tbody.innerHTML = '';
-  const date = document.getElementById('log-date').value;
-  const rows = getUser().exercises.filter((f) => f.date === date).sort((a, b) => a.time.localeCompare(b.time));
-  let total = 0;
+  const cardioTable = document.querySelector('#exercise-table tbody');
+  const strengthTable = document.querySelector('#strength-table tbody');
+  if (cardioTable) cardioTable.innerHTML = '';
+  if (strengthTable) strengthTable.innerHTML = '';
+  const date = document.getElementById('exercise-date').value;
+  const rows = getUser().exercises
+    .filter((f) => f.date === date)
+    .sort((a, b) => a.time.localeCompare(b.time));
+  let cardioTotal = 0;
+  let strengthTotal = 0;
+  let volumeTotal = 0;
+
   rows.forEach((row) => {
-    total += row.kcalBurn;
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${row.time}</td>
-      <td>${row.label}</td>
-      <td>${row.mins}</td>
-      <td>${row.kcalBurn}</td>
-      <td><button data-id="${row.id}" class="ghost">Remove</button></td>
-    `;
-    tbody.appendChild(tr);
+    if (row.type === 'strength') {
+      strengthTotal += row.kcalBurn || 0;
+      volumeTotal += row.volume || row.sets * row.reps * row.weight || 0;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${row.time}</td>
+        <td>${row.label || 'Strength'}</td>
+        <td>${row.sets || 0}</td>
+        <td>${row.reps || 0}</td>
+        <td>${row.weight || 0}</td>
+        <td>${(row.volume || 0).toFixed(0)}</td>
+        <td>${(row.kcalBurn || 0).toFixed(1)}</td>
+        <td><button data-id="${row.id}" class="ghost">Remove</button></td>
+      `;
+      strengthTable.appendChild(tr);
+    } else {
+      cardioTotal += row.kcalBurn || 0;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${row.time}</td>
+        <td>${row.label}</td>
+        <td>${row.mins}</td>
+        <td>${row.distance || 0}</td>
+        <td>${row.incline || 0}</td>
+        <td>${(row.kcalBurn || 0).toFixed(1)}</td>
+        <td><button data-id="${row.id}" class="ghost">Remove</button></td>
+      `;
+      cardioTable.appendChild(tr);
+    }
   });
-  tbody.querySelectorAll('button').forEach((btn) => btn.addEventListener('click', () => deleteExercise(btn.dataset.id)));
-  document.getElementById('burn-total').textContent = `${total.toFixed(1)} kcal`;
+  document
+    .querySelectorAll('#exercise-table button, #strength-table button')
+    .forEach((btn) => btn.addEventListener('click', () => deleteExercise(btn.dataset.id)));
+  const burn = document.getElementById('burn-total');
+  if (burn) burn.textContent = `${cardioTotal.toFixed(1)} kcal`;
+  const cardio = document.getElementById('cardio-total');
+  if (cardio) cardio.textContent = `${cardioTotal.toFixed(1)} kcal`;
+  const strength = document.getElementById('strength-total');
+  if (strength) strength.textContent = `${strengthTotal.toFixed(1)} kcal`;
+  const volumeBadge = document.getElementById('volume-total');
+  if (volumeBadge) volumeBadge.textContent = `${volumeTotal.toFixed(0)} kg total volume`;
 }
 
 function renderSummary() {
@@ -510,8 +830,7 @@ function renderSummary() {
 function renderSnapshotMetrics() {
   const date = document.getElementById('log-date').value;
   const summary = summarizeDate(date);
-  const metrics = document.getElementById('snapshot-metrics');
-  metrics.innerHTML = `
+  const template = `
     <div class="metric"><div>Current weight</div><div class="bold-metric">${summary.currentWeight.toFixed(1)} kg</div></div>
     <div class="metric"><div>Predicted weight</div><div class="bold-metric">${summary.predictedWeight.toFixed(1)} kg</div></div>
     <div class="metric"><div>Weekly change</div><div class="bold-metric">${summary.weeklyChange.toFixed(1)} kg</div></div>
@@ -521,6 +840,10 @@ function renderSnapshotMetrics() {
     <div class="metric"><div>Intake</div><div class="bold-metric">${summary.intake.toFixed(0)} kcal</div></div>
     <div class="metric"><div>Net deficit</div><div class="bold-metric">${summary.deficit.toFixed(0)} kcal</div></div>
   `;
+  const metrics = document.getElementById('snapshot-metrics');
+  const metricsAlt = document.getElementById('snapshot-metrics-alt');
+  if (metrics) metrics.innerHTML = template;
+  if (metricsAlt) metricsAlt.innerHTML = template;
 }
 
 function renderWeightTable() {
@@ -541,12 +864,22 @@ function renderWeightTable() {
 
 function renderDetox() {
   const user = getUser();
-  const container = document.getElementById('detox-list');
-  container.innerHTML = '';
+  const list = document.getElementById('detox-items');
+  const inputs = document.getElementById('detox-inputs');
+  if (list) list.innerHTML = '';
+  if (inputs) inputs.innerHTML = '';
   user.detox.items.forEach((item) => {
-    const wrapper = document.createElement('label');
-    wrapper.innerHTML = `${item.label} ${inputForDetox(item)}`;
-    container.appendChild(wrapper);
+    if (list) {
+      const badge = document.createElement('div');
+      badge.className = 'pill';
+      badge.textContent = `${item.label} (${item.type})`;
+      list.appendChild(badge);
+    }
+    if (inputs) {
+      const wrapper = document.createElement('label');
+      wrapper.innerHTML = `${item.label} ${inputForDetox(item)}`;
+      inputs.appendChild(wrapper);
+    }
   });
   const date = document.getElementById('log-date').value;
   const entry = user.detox.daily.find((d) => d.date === date);
@@ -615,9 +948,12 @@ function formatDays(value) {
 function renderStreaks() {
   const streakEl = document.getElementById('streaks');
   const info = computeStreakInfo();
-  streakEl.innerHTML = `
+  const template = `
     <strong>Streak:</strong> ${info.days} days (${info.months} months, ${info.hours} hours) on fasting + detox plan
   `;
+  if (streakEl) streakEl.innerHTML = template;
+  const alt = document.getElementById('streaks-alt');
+  if (alt) alt.innerHTML = template;
 }
 
 function computeStreakInfo() {
@@ -636,7 +972,7 @@ function summarizeDate(date) {
   const foods = user.foods.filter((f) => f.date === date);
   const exercises = user.exercises.filter((e) => e.date === date);
   const intake = foods.reduce((sum, f) => sum + f.kcal, 0);
-  const exercise = exercises.reduce((sum, e) => sum + e.kcalBurn, 0);
+  const exercise = exercises.reduce((sum, e) => sum + computeKcalBurn(e, date), 0);
   const bmr = mifflin({ ...user.profile, weight: getWeightForDate(date) });
   const base = calcTdee(bmr, user.profile.activity);
   const deficit = base + exercise - intake;
@@ -680,7 +1016,7 @@ function buildPredictions() {
     const foods = user.foods.filter((f) => f.date === date);
     const exercises = user.exercises.filter((e) => e.date === date);
     const intake = foods.reduce((sum, f) => sum + f.kcal, 0);
-    const exercise = exercises.reduce((sum, e) => sum + e.kcalBurn, 0);
+    const exercise = exercises.reduce((sum, e) => sum + computeKcalBurn(e, date), 0);
     const weightForDay = getWeightForDate(date);
     const bmr = mifflin({ ...user.profile, weight: weightForDay });
     const base = calcTdee(bmr, user.profile.activity);
@@ -736,6 +1072,10 @@ function calcCalories({ protein = 0, fat = 0, carbs = 0, alcohol = 0, fiber = 0 
   return protein * 4 + carbs * 4 + fat * 9 + alcohol * 7 + fiber * 2;
 }
 
+function computeKcalFromMet(met, mins, weight) {
+  return ((met || 3.5) * 3.5 * (weight || 70)) / 200 * (mins || 0);
+}
+
 function mifflin({ weight, height, age, gender }) {
   const s = gender === 'Male' ? 5 : -161;
   return 10 * weight + 6.25 * height - 5 * age + s;
@@ -771,6 +1111,13 @@ function activityLabel(value) {
 function getMetLabel(value) {
   const match = catalogs.activities.find((a) => a.met === value);
   return match ? match.label : `${value} METs`;
+}
+
+function computeKcalBurn(entry, date) {
+  const weight = getWeightForDate(date || entry.date);
+  const met = entry.met || (entry.type === 'strength' ? 4 : 3.5);
+  if (entry.kcalBurn) return entry.kcalBurn;
+  return computeKcalFromMet(met, entry.mins || 0, weight);
 }
 
 function drawCalorieChart(summary) {
@@ -857,7 +1204,9 @@ function drawDeficitChart(date) {
   const base = calcTdee(mifflin({ ...user.profile, weight: getWeightForDate(date) }), user.profile.activity);
   const events = [
     ...user.foods.filter((f) => f.date === date).map((f) => ({ time: f.time, delta: -f.kcal })),
-    ...user.exercises.filter((e) => e.date === date).map((e) => ({ time: e.time, delta: e.kcalBurn })),
+    ...user.exercises
+      .filter((e) => e.date === date)
+      .map((e) => ({ time: e.time, delta: computeKcalBurn(e, date) })),
   ].sort((a, b) => a.time.localeCompare(b.time));
   let running = base;
   const labels = ['Start'];
