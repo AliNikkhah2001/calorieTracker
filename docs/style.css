@@ -1,11 +1,15 @@
+
 :root {
   color-scheme: light;
 }
 
 body {
-  background: #f8fafc;
-  color: #0f172a;
+  background: radial-gradient(circle at 20% 20%, rgba(248, 113, 113, 0.08), transparent 30%),
+    radial-gradient(circle at 80% 0%, rgba(59, 130, 246, 0.08), transparent 35%),
+    linear-gradient(180deg, #0b1220 0%, #0b1220 35%, #0f172a 100%);
+  color: #e2e8f0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
 }
 
 h1,
@@ -16,39 +20,35 @@ h4 {
   letter-spacing: -0.01em;
 }
 
-.hero {
-  padding: 2rem 0 1rem;
-}
-
 .kicker {
   text-transform: uppercase;
   letter-spacing: 0.16em;
   font-size: 0.9rem;
-  color: #475569;
+  color: #cbd5e1;
   margin-bottom: 0.2rem;
 }
 
 .tab-bar {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   gap: 0.5rem;
-  margin-bottom: 1rem;
 }
 
 .tab {
-  border: 1px solid #e2e8f0;
-  background: #fff;
-  color: #0f172a;
-  padding: 0.75rem 1rem;
-  border-radius: 0.75rem;
-  box-shadow: 0 5px 15px rgba(15, 23, 42, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  color: #e2e8f0;
+  padding: 0.8rem 1rem;
+  border-radius: 0.9rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(12px);
 }
 
 .tab.active {
-  background: linear-gradient(135deg, #f8fafc 0%, #fff 100%);
-  border-color: #cbd5e1;
-  box-shadow: 0 12px 25px rgba(15, 23, 42, 0.08);
-  font-weight: 600;
+  background: linear-gradient(135deg, rgba(248, 113, 113, 0.35), rgba(59, 130, 246, 0.25));
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+  font-weight: 700;
 }
 
 .tab-panel {
@@ -59,21 +59,30 @@ h4 {
   display: block;
 }
 
-.card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+.card,
+.subcard,
+.navbar {
+  position: relative;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 1rem;
   padding: 1.25rem;
-  box-shadow: 0 15px 40px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(14px) saturate(130%);
   margin-bottom: 1rem;
 }
 
 .subcard {
-  background: #ffffff;
   padding: 1rem;
-  border-radius: 0.85rem;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+}
+
+.glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.12), transparent 45%);
+  pointer-events: none;
 }
 
 header h1 {
@@ -81,12 +90,12 @@ header h1 {
 }
 
 .muted {
-  color: #6b7280;
+  color: #cbd5e1;
 }
 
 .metric-card {
-  background: #0f172a;
-  color: #e5e7eb;
+  background: linear-gradient(160deg, rgba(248, 113, 113, 0.4), rgba(59, 130, 246, 0.35));
+  color: #0b1220;
   padding: 1rem;
   border-radius: 0.75rem;
   margin-top: 0.75rem;
@@ -102,8 +111,8 @@ header h1 {
 .metric {
   padding: 0.75rem;
   border-radius: 0.75rem;
-  background: rgba(15, 23, 42, 0.05);
-  border: 1px dashed rgba(15, 23, 42, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px dashed rgba(255, 255, 255, 0.18);
 }
 
 .chart-row {
@@ -114,14 +123,15 @@ header h1 {
 }
 
 .chart-box {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 0.9rem;
   padding: 0.85rem;
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.3);
   max-width: 540px;
   width: 100%;
   margin: 0 auto;
+  backdrop-filter: blur(10px);
 }
 
 .chart-title {
@@ -165,8 +175,8 @@ header h1 {
 }
 
 .pill {
-  background: #e2e8f0;
-  color: #0f172a;
+  background: rgba(255, 255, 255, 0.12);
+  color: #e2e8f0;
   padding: 0.35rem 0.85rem;
   border-radius: 999px;
   font-size: 0.95rem;
@@ -175,13 +185,13 @@ header h1 {
 #food-table tbody tr:nth-child(odd),
 #exercise-table tbody tr:nth-child(odd),
 #weight-table tbody tr:nth-child(odd) {
-  background: #f1f5f9;
+  background: rgba(255, 255, 255, 0.04);
 }
 
 #food-table td button,
 #exercise-table td button {
-  --pico-button-background-color: #f87171;
-  --pico-button-border-color: #f87171;
+  --pico-button-background-color: #ef4444;
+  --pico-button-border-color: #ef4444;
   --pico-button-color: white;
 }
 
@@ -190,13 +200,39 @@ header h1 {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #eef2ff;
-  color: #312e81;
+  background: rgba(59, 130, 246, 0.18);
+  color: #e0f2fe;
+  border-radius: 0.6rem;
 }
 
 .countdown {
-  font-weight: 600;
-  color: #0f172a;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.navbar {
+  margin: 1rem auto;
+}
+
+.navbar .brand {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.navbar h1 {
+  margin: 0;
+}
+
+.logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  box-shadow: 0 10px 22px rgba(248, 113, 113, 0.35);
+}
+
+.table-scroll.small table {
+  min-width: 320px;
 }
 
 #detox-list label {

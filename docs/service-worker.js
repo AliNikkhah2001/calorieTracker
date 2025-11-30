@@ -1,5 +1,5 @@
 // Bump the cache name to ensure clients pick up the refreshed bundle when redeployed.
-const CACHE_NAME = 'calorie-tracker-v3';
+const CACHE_NAME = 'calorie-tracker-v4';
 const ASSETS = [
   './',
   './index.html',
