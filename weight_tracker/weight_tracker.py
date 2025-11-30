@@ -10,6 +10,81 @@ EXERCISE_TYPES = list(services.MET_VALUES.keys())
 ACTIVITY_LEVELS = list(services.ACTIVITY_MULTIPLIERS.keys())
 GENDERS = ["Male", "Female"]
 
+WORKOUT_LIBRARY = {
+    "Chest": [
+        "Seated Chest Press",
+        "Horizontal Chest Press",
+        "Decline Chest Press",
+        "Incline Chest Press",
+        "High-to-Low Cable Fly",
+        "Low-to-High Cable Fly",
+        "Standing Cable Chest Fly",
+        "Single-Arm Cable Press",
+    ],
+    "Back": [
+        "Wide-Grip Lat Pulldown",
+        "Close-Grip Pulldown",
+        "Reverse-Grip Pulldown",
+        "Seated Cable Row",
+        "Wide-Grip Row",
+        "Neutral-Grip Row",
+        "Assisted Pull-Up",
+        "Assisted Chin-Up",
+        "Back Extension",
+    ],
+    "Shoulders": [
+        "Seated Shoulder Press",
+        "Machine Lateral Raise",
+        "Rear Delt Fly",
+    ],
+    "Arms": [
+        "Machine Bicep Curl",
+        "Cable Bicep Curl",
+        "Hammer Curl",
+        "Single-Arm Cable Curl",
+        "Seated Tricep Extension",
+        "Tricep Pushdown",
+        "Overhead Cable Extension",
+        "Single-Arm Cable Kickback",
+    ],
+    "Legs": [
+        "Horizontal Leg Press",
+        "45-Degree Leg Press",
+        "Single-Leg Press",
+        "Leg Extension",
+        "Seated Leg Curl",
+        "Lying Leg Curl",
+        "Hack Squat",
+        "Smith Machine Squat",
+        "Split Squat",
+        "Calf Raise",
+        "Hip Thrust",
+        "Standing Calf Raise",
+        "Seated Calf Raise",
+    ],
+    "Glutes / Hips": [
+        "Glute Kickback",
+        "Hip Abduction",
+        "Hip Adduction",
+        "Cable Kickbacks",
+        "Cable Hip Abduction",
+        "Cable Hip Adduction",
+    ],
+    "Core": [
+        "Machine Crunch",
+        "Torso Rotation",
+    ],
+    "Full Body": [
+        "Cable Woodchop",
+        "Face Pull",
+        "Cable Squat",
+        "Cable Lunge",
+        "Smith Machine Bench Press",
+        "Smith Machine Deadlift",
+        "Smith Machine Overhead Press",
+    ],
+}
+
 
 def card(*children, **kwargs) -> rx.Component:
     """Reusable white card container."""
@@ -139,14 +214,19 @@ def food_form() -> rx.Component:
             rx.select.root(
                 rx.select.trigger(placeholder="Select food"),
                 rx.select.content(
-                    rx.select.group(
-                        rx.select.label("Food"),
-                        rx.select.item("Custom entry", value="custom"),
-                        rx.foreach(
-                            AppState.food_items,
-                            lambda item: rx.select.item(item["name"], value=item["value"]),
+                    rx.select.group(rx.select.label("Custom"), rx.select.item("Custom entry", value="custom")),
+                    rx.foreach(
+                        AppState.food_groups,
+                        lambda group: rx.select.group(
+                            rx.select.label(group["category"]),
+                            rx.foreach(
+                                group["items"],
+                                lambda item: rx.select.item(
+                                    f"{item['name']} ({item['measure']})", value=item["value"]
+                                ),
+                            ),
                         ),
-                    )
+                    ),
                 ),
                 value=AppState.food_choice,
                 on_change=AppState.set_food_choice,
@@ -218,6 +298,108 @@ def weight_form() -> rx.Component:
             rx.button("Log weight", on_click=AppState.log_weight_entry, color_scheme="orange"),
         ),
         padding="1rem",
+    )
+
+
+def workout_form() -> rx.Component:
+    return card(
+        rx.vstack(
+            rx.heading("Strength / Cardio", size="4"),
+            rx.input(type_="date", value=AppState.workout_date, on_change=AppState.set_workout_date),
+            rx.select(
+                items=list(WORKOUT_LIBRARY.keys()),
+                value=AppState.workout_category,
+                on_change=AppState.set_workout_category,
+            ),
+            rx.select.root(
+                rx.select.trigger(placeholder="Choose exercise"),
+                rx.select.content(
+                    rx.foreach(
+                        WORKOUT_LIBRARY.items(),
+                        lambda item: rx.select.group(
+                            rx.select.label(item[0]),
+                            rx.foreach(
+                                item[1],
+                                lambda name: rx.select.item(name, value=name),
+                            ),
+                        ),
+                    )
+                ),
+                value=AppState.workout_exercise,
+                on_change=AppState.set_workout_exercise,
+            ),
+            rx.flex(
+                rx.input(
+                    placeholder="Sets",
+                    type_="number",
+                    value=AppState.workout_sets,
+                    on_change=AppState.set_workout_sets,
+                ),
+                rx.input(
+                    placeholder="Reps",
+                    type_="number",
+                    value=AppState.workout_reps,
+                    on_change=AppState.set_workout_reps,
+                ),
+                rx.input(
+                    placeholder="Weight (kg)",
+                    type_="number",
+                    value=AppState.workout_weight,
+                    on_change=AppState.set_workout_weight,
+                ),
+                gap="0.5rem",
+                wrap="wrap",
+            ),
+            rx.textarea(placeholder="Notes", value=AppState.workout_notes, on_change=AppState.set_workout_notes),
+            rx.button("Add workout", on_click=AppState.log_workout_entry, color_scheme="pink"),
+        )
+    )
+
+
+def workout_table() -> rx.Component:
+    return rx.cond(
+        AppState.workout_log != [],
+        card(
+            rx.vstack(
+                rx.heading("Recent Workouts", size="4"),
+                rx.table.root(
+                    rx.table.header(
+                        rx.table.row(
+                            rx.table.column_header_cell("Date"),
+                            rx.table.column_header_cell("Category"),
+                            rx.table.column_header_cell("Exercise"),
+                            rx.table.column_header_cell("Sets"),
+                            rx.table.column_header_cell("Reps"),
+                            rx.table.column_header_cell("Weight"),
+                            rx.table.column_header_cell("Notes"),
+                            rx.table.column_header_cell(""),
+                        )
+                    ),
+                    rx.table.body(
+                        rx.foreach(
+                            AppState.workout_log,
+                            lambda row: rx.table.row(
+                                rx.table.cell(row["date"]),
+                                rx.table.cell(row["category"]),
+                                rx.table.cell(row["exercise"]),
+                                rx.table.cell(row["sets"]),
+                                rx.table.cell(row["reps"]),
+                                rx.table.cell(row["weight"]),
+                                rx.table.cell(row["notes"]),
+                                rx.table.cell(
+                                    rx.button(
+                                        "Delete",
+                                        size="1",
+                                        on_click=lambda: AppState.delete_workout_entry(row["id"]),
+                                    )
+                                ),
+                            ),
+                        )
+                    ),
+                ),
+            )
+        ),
+        rx.text("No workouts logged yet", color="gray.500"),
     )
 
 
@@ -375,29 +557,84 @@ def food_db_table() -> rx.Component:
     )
 
 
-def today_tab() -> rx.Component:
+def date_toolbar() -> rx.Component:
+    return rx.hstack(
+        rx.text("Date:"),
+        rx.input(type_="date", value=AppState.today_date, on_change=AppState.set_today, width="200px"),
+        rx.spacer(),
+        rx.badge(AppState.today_date, color_scheme="gray"),
+        width="100%",
+    )
+
+
+def insights_tab() -> rx.Component:
     return rx.vstack(
-        rx.hstack(
-            rx.heading("Daily Log"),
-            rx.text(AppState.today_date),
-            rx.spacer(),
-            rx.input(type_="date", value=AppState.today_date, on_change=AppState.set_today, width="200px"),
+        date_toolbar(),
+        rx.cond(
+            AppState.profile_metrics != None,
+            rx.vstack(
+                summary_section(),
+                rx.flex(
+                    metric_card(
+                        "Weight change",
+                        rx.text(
+                            rx.cond(
+                                AppState.insights.get("weight_change", 0) < 0,
+                                rx.text(f"{AppState.insights.get('weight_change', 0):.1f} kg", color="green.600"),
+                                rx.text(f"{AppState.insights.get('weight_change', 0):.1f} kg", color="red.600"),
+                            ),
+                            font_size="xl",
+                            font_weight="bold",
+                        ),
+                        "vs. first entry",
+                    ),
+                    metric_card(
+                        "Change %",
+                        rx.text(f"{AppState.insights.get('weight_change_pct', 0):.1f}%", font_size="xl", font_weight="bold"),
+                    ),
+                    metric_card(
+                        "Avg net kcal (7d)",
+                        rx.text(f"{AppState.insights.get('avg_net', 0):.0f}", font_size="xl", font_weight="bold"),
+                    ),
+                    metric_card(
+                        "Days logged (7d)",
+                        rx.text(f"{AppState.insights.get('days_logged', 0)}", font_size="xl", font_weight="bold"),
+                        "with intake or exercise",
+                    ),
+                    gap="1rem",
+                    wrap="wrap",
+                ),
+            ),
+            rx.vstack(
+                rx.text("Set up your profile to unlock insights", color="gray.600"),
+                rx.text("Open the Account tab to enter age, weight, height, and goals."),
+            ),
         ),
-        summary_section(),
-        rx.flex(
-            profile_form(),
-            food_form(),
-            exercise_form(),
-            gap="1rem",
-            wrap="wrap",
-        ),
-        weight_form(),
-        rx.flex(
-            food_table(),
-            exercise_table(),
-            gap="1rem",
-            wrap="wrap",
-        ),
+        spacing="4",
+    )
+
+
+def food_tab() -> rx.Component:
+    return rx.vstack(
+        date_toolbar(),
+        rx.flex(food_form(), food_table(), gap="1rem", wrap="wrap"),
+        spacing="3",
+    )
+
+
+def exercise_tab() -> rx.Component:
+    return rx.vstack(
+        date_toolbar(),
+        rx.flex(exercise_form(), exercise_table(), gap="1rem", wrap="wrap"),
+        spacing="3",
+    )
+
+
+def fitness_tab() -> rx.Component:
+    return rx.vstack(
+        workout_form(),
+        workout_table(),
+        spacing="3",
     )
 
 
@@ -423,6 +660,10 @@ def food_db_tab() -> rx.Component:
     )
 
 
+def account_tab() -> rx.Component:
+    return rx.flex(profile_form(), weight_form(), gap="1rem", wrap="wrap")
+
+
 def message_center() -> rx.Component:
     return rx.vstack(
         rx.cond(
@@ -440,23 +681,39 @@ def message_center() -> rx.Component:
 
 def dashboard_view() -> rx.Component:
     return rx.vstack(
-        rx.hstack(
-            rx.heading("Weight Tracker", size="5"),
-            rx.spacer(),
-            rx.text(f"Logged in as {AppState.username}"),
-            rx.button("Logout", on_click=AppState.logout),
+        rx.box(
+            rx.hstack(
+                rx.heading("Weight Tracker", size="5"),
+                rx.spacer(),
+                rx.text(f"Logged in as {AppState.username}"),
+                rx.button("Logout", on_click=AppState.logout),
+            ),
+            position="sticky",
+            top="0",
+            background="white",
+            z_index="100",
+            padding_y="0.5rem",
+            box_shadow="md",
         ),
         message_center(),
         rx.tabs.root(
             rx.tabs.list(
-                rx.tabs.trigger("Today", value="today"),
+                rx.tabs.trigger("Insights", value="insights"),
+                rx.tabs.trigger("Food", value="food"),
+                rx.tabs.trigger("Exercise", value="exercise"),
+                rx.tabs.trigger("Fitness", value="fitness"),
                 rx.tabs.trigger("Weight", value="weight"),
                 rx.tabs.trigger("Food DB", value="fooddb"),
+                rx.tabs.trigger("Account", value="account"),
             ),
-            rx.tabs.content(today_tab(), value="today"),
+            rx.tabs.content(insights_tab(), value="insights"),
+            rx.tabs.content(food_tab(), value="food"),
+            rx.tabs.content(exercise_tab(), value="exercise"),
+            rx.tabs.content(fitness_tab(), value="fitness"),
             rx.tabs.content(weight_tab(), value="weight"),
             rx.tabs.content(food_db_tab(), value="fooddb"),
-            default_value="today",
+            rx.tabs.content(account_tab(), value="account"),
+            default_value="insights",
         ),
         spacing="5",
         width="100%",
