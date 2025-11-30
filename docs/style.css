@@ -362,9 +362,7 @@ header h1 {
     padding: 1rem;
   }
 
-  .tab-bar {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  }
+
 
   .chart-box {
     max-width: 100%;
