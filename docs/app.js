@@ -1,10 +1,12 @@
-const STORAGE_KEY = 'calorie-tracker-state-v2';
+const STORAGE_KEY = 'calorie-tracker-state-v3';
 let calorieChart;
 let weightChart;
 let deficitChart;
 let deficitTrendChart;
 let pieChart;
 let detoxChart;
+let strengthChart;
+let insightChart;
 let catalogs = { foods: [], activities: [] };
 
 let state = loadState();
@@ -16,9 +18,9 @@ function loadState() {
   if (stored) {
     try {
       const parsed = JSON.parse(stored);
-      if (parsed.users && parsed.activeUserId) return parsed;
+      if (parsed.users && parsed.activeUserId) return ensureMigrations(parsed);
       // migrate from v1
-      return {
+      return ensureMigrations({
         activeUserId: 'default',
         users: {
           default: {
@@ -27,14 +29,18 @@ function loadState() {
             exercises: parsed.exercises || [],
             weights: parsed.weights || [],
             detox: defaultDetoxState(),
+            savedFoods: [],
+            recentFoods: [],
+            fitness: defaultFitnessState(),
           },
         },
-      };
+        onboarded: false,
+      });
     } catch (e) {
       console.error('Bad stored state', e);
     }
   }
-  return {
+  return ensureMigrations({
     activeUserId: 'default',
     users: {
       default: {
@@ -43,9 +49,13 @@ function loadState() {
         exercises: [],
         weights: [],
         detox: defaultDetoxState(),
+        savedFoods: [],
+        recentFoods: [],
+        fitness: defaultFitnessState(),
       },
     },
-  };
+    onboarded: false,
+  });
 }
 
 function defaultProfile() {
@@ -54,12 +64,17 @@ function defaultProfile() {
     age: 30,
     height: 170,
     weight: 70,
+    initialWeight: 70,
     gender: 'Male',
     activity: 1.2,
     deficit: 500,
     fastingStart: '18:00',
     fastingEnd: '20:00',
   };
+}
+
+function defaultFitnessState() {
+  return { strength: [], cardio: [] };
 }
 
 function defaultDetoxState() {
@@ -84,13 +99,30 @@ function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
+function ensureMigrations(parsed) {
+  if (!parsed.users) return parsed;
+  Object.values(parsed.users).forEach((user) => {
+    user.profile = { ...defaultProfile(), ...user.profile };
+    if (!user.profile.initialWeight) user.profile.initialWeight = user.profile.weight;
+    user.detox = user.detox || defaultDetoxState();
+    user.savedFoods = user.savedFoods || [];
+    user.recentFoods = user.recentFoods || [];
+    user.fitness = user.fitness || defaultFitnessState();
+  });
+  if (parsed.onboarded === undefined) parsed.onboarded = false;
+  return parsed;
+}
+
 async function init() {
   bindTabs();
+  bindIntakeTabs();
   bindUserControls();
   bindProfileForm();
   bindFoodControls();
   bindExerciseControls();
+  bindFitnessControls();
   bindWeightControls();
+  bindNavToggle();
   bindDetoxControls();
   document.getElementById('log-date').value = new Date().toISOString().slice(0, 10);
   await loadCatalog();
@@ -109,6 +141,7 @@ function registerServiceWorker() {
 
 function bindTabs() {
   const tabs = document.querySelectorAll('.tab');
+  const navLinks = document.getElementById('nav-links');
   tabs.forEach((tab) => {
     tab.addEventListener('click', () => {
       tabs.forEach((t) => t.classList.remove('active'));
@@ -117,12 +150,31 @@ function bindTabs() {
         panel.classList.remove('active');
       });
       document.getElementById(`panel-${tab.dataset.tab}`).classList.add('active');
-      if (pieChart) pieChart.resize();
-      if (deficitChart) deficitChart.resize();
-      if (deficitTrendChart) deficitTrendChart.resize();
-      if (weightChart) weightChart.resize();
-      if (calorieChart) calorieChart.resize();
-      if (detoxChart) detoxChart.resize();
+      [pieChart, deficitChart, deficitTrendChart, weightChart, calorieChart, detoxChart, strengthChart, insightChart].forEach((c) => c && c.resize());
+      if (navLinks && navLinks.classList.contains('open')) navLinks.classList.remove('open');
+    });
+  });
+}
+
+function bindNavToggle() {
+  const toggle = document.getElementById('nav-toggle');
+  const navLinks = document.getElementById('nav-links');
+  if (!toggle || !navLinks) return;
+  toggle.addEventListener('click', () => {
+    navLinks.classList.toggle('open');
+  });
+}
+
+function bindIntakeTabs() {
+  const tabs = document.querySelectorAll('.intake-tab');
+  const panels = document.querySelectorAll('.intake-panel');
+  if (!tabs.length) return;
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      tabs.forEach((t) => t.classList.remove('active'));
+      tab.classList.add('active');
+      panels.forEach((panel) => panel.classList.remove('active'));
+      document.getElementById(`intake-${tab.dataset.tab}`).classList.add('active');
     });
   });
 }
@@ -171,7 +223,16 @@ function bindUserControls() {
     const newName = prompt('New user name?');
     if (!newName) return;
     const id = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`;
-    state.users[id] = { profile: { ...defaultProfile(), name: newName }, foods: [], exercises: [], weights: [], detox: defaultDetoxState() };
+    state.users[id] = {
+      profile: { ...defaultProfile(), name: newName },
+      foods: [],
+      exercises: [],
+      weights: [],
+      detox: defaultDetoxState(),
+      savedFoods: [],
+      recentFoods: [],
+      fitness: defaultFitnessState(),
+    };
     state.activeUserId = id;
     saveState();
     refresh();
@@ -192,6 +253,7 @@ function bindProfileForm() {
   const form = document.getElementById('profile-form');
   const fastingStart = document.getElementById('fasting-start');
   const fastingEnd = document.getElementById('fasting-end');
+  const onboardingHint = document.getElementById('onboarding-hint');
 
   const fill = () => {
     const profile = getUser().profile;
@@ -216,11 +278,14 @@ function bindProfileForm() {
     profile.deficit = parseFloat(form.deficit.value) || 0;
     profile.fastingStart = fastingStart.value || '18:00';
     profile.fastingEnd = fastingEnd.value || '20:00';
+    if (!profile.initialWeight) profile.initialWeight = profile.weight;
+    state.onboarded = true;
     saveState();
     renderAll();
   });
 
   fill();
+  if (onboardingHint) onboardingHint.classList.toggle('hidden', !!state.onboarded);
 }
 
 function bindFoodControls() {
@@ -232,18 +297,20 @@ function bindFoodControls() {
     const select = document.getElementById('food-select');
     const selectedOption = select.options[select.selectedIndex];
     const selectedFood = catalogs.foods.find((f) => f.name === selectedOption?.dataset?.name || selectedOption?.value);
+    const savedFood = user.savedFoods.find((f) => f.name === selectedOption?.dataset?.name || selectedOption?.value);
 
     const macros = {
-      protein: parseFloat(document.getElementById('food-protein').value) || (selectedFood?.protein || 0),
-      fat: parseFloat(document.getElementById('food-fat').value) || (selectedFood?.fat || 0),
-      carbs: parseFloat(document.getElementById('food-carbs').value) || (selectedFood?.carbs || 0),
+      protein: parseFloat(document.getElementById('food-protein').value) || selectedFood?.protein || savedFood?.protein || 0,
+      fat: parseFloat(document.getElementById('food-fat').value) || selectedFood?.fat || savedFood?.fat || 0,
+      carbs: parseFloat(document.getElementById('food-carbs').value) || selectedFood?.carbs || savedFood?.carbs || 0,
       alcohol: parseFloat(document.getElementById('food-alcohol').value) || 0,
       fiber: parseFloat(document.getElementById('food-fiber').value) || 0,
     };
 
     const kcalInput = parseFloat(document.getElementById('food-kcal').value);
     const kcal = Number.isFinite(kcalInput) && kcalInput > 0 ? kcalInput : calcCalories(macros);
-    const name = document.getElementById('food-name').value || selectedFood?.name || 'Custom';
+    const name = document.getElementById('food-name').value || selectedFood?.name || savedFood?.name || 'Custom';
+    const categoryInput = document.getElementById('food-category').value || selectedFood?.category || savedFood?.category || 'Meals';
 
     user.foods.push({
       id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`,
@@ -257,6 +324,19 @@ function bindFoodControls() {
       carbs: +(macros.carbs * qty).toFixed(1),
     });
 
+    if (!selectedFood && !savedFood && name && kcal) {
+      user.savedFoods.push({
+        name,
+        kcal: +kcal.toFixed(1),
+        protein: +macros.protein.toFixed(1),
+        fat: +macros.fat.toFixed(1),
+        carbs: +macros.carbs.toFixed(1),
+        category: categoryInput || 'Custom',
+      });
+    }
+
+    markRecentFood(name);
+
     saveState();
     clearFoodInputs();
     renderAll();
@@ -264,13 +344,14 @@ function bindFoodControls() {
 
   document.getElementById('food-select').addEventListener('change', (e) => {
     const name = e.target.options[e.target.selectedIndex]?.dataset?.name || e.target.value;
-    const food = catalogs.foods.find((f) => f.name === name);
+    const food = catalogs.foods.find((f) => f.name === name) || getUser().savedFoods.find((f) => f.name === name);
     if (!food) return;
     document.getElementById('food-name').value = food.name;
     document.getElementById('food-protein').value = food.protein;
     document.getElementById('food-fat').value = food.fat;
     document.getElementById('food-carbs').value = food.carbs;
     document.getElementById('food-kcal').value = food.kcal;
+    document.getElementById('food-category').value = food.category || '';
   });
 
   document.getElementById('log-date').addEventListener('change', renderAll);
@@ -304,20 +385,65 @@ function bindExerciseControls() {
   });
 }
 
-function bindWeightControls() {
-  const user = getUser();
-  document.getElementById('weight-entry').value = user.profile.weight;
-  document.getElementById('add-weight').addEventListener('click', () => {
-    const date = document.getElementById('log-date').value;
-    const weight = parseFloat(document.getElementById('weight-entry').value) || 0;
-    if (!weight) return;
+function bindFitnessControls() {
+  const strengthSelect = document.getElementById('fitness-exercise');
+  const cardioSelect = document.getElementById('cardio-type');
+
+  document.getElementById('add-strength').addEventListener('click', () => {
     const u = getUser();
-    u.weights = u.weights.filter((w) => w.date !== date);
-    u.weights.push({ date, weight });
-    u.weights.sort((a, b) => a.date.localeCompare(b.date));
-    u.profile.weight = weight;
+    const date = document.getElementById('log-date').value;
+    const time = document.getElementById('strength-time').value || '18:00';
+    const exercise = strengthSelect.value;
+    const sets = parseInt(document.getElementById('fitness-sets').value, 10) || 0;
+    const reps = parseInt(document.getElementById('fitness-reps').value, 10) || 0;
+    const weight = parseFloat(document.getElementById('fitness-weight').value) || 0;
+    if (!exercise) return;
+    u.fitness.strength.push({ id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`, date, time, exercise, sets, reps, weight });
     saveState();
     renderAll();
+  });
+
+  document.getElementById('add-cardio').addEventListener('click', () => {
+    const u = getUser();
+    const date = document.getElementById('log-date').value;
+    const time = document.getElementById('cardio-time').value || '07:00';
+    const activity = cardioSelect.value || document.getElementById('cardio-custom').value;
+    const mins = parseFloat(document.getElementById('cardio-mins').value) || 0;
+    const speed = document.getElementById('cardio-speed').value;
+    const incline = document.getElementById('cardio-incline').value;
+    if (!activity || !mins) return;
+    u.fitness.cardio.push({ id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`, date, time, activity, mins, speed, incline });
+    saveState();
+    renderAll();
+  });
+}
+
+function bindWeightControls() {
+  syncWeightInputs();
+  document.querySelectorAll('[data-weight-button]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.weightTarget;
+      const input = document.getElementById(target);
+      if (!input) return;
+      const date = document.getElementById('log-date').value;
+      const weight = parseFloat(input.value) || 0;
+      if (!weight) return;
+      const u = getUser();
+      u.weights = u.weights.filter((w) => w.date !== date);
+      u.weights.push({ date, weight });
+      u.weights.sort((a, b) => a.date.localeCompare(b.date));
+      u.profile.weight = weight;
+      if (!u.profile.initialWeight) u.profile.initialWeight = weight;
+      saveState();
+      renderAll();
+    });
+  });
+}
+
+function syncWeightInputs() {
+  const weight = getUser().profile.weight || '';
+  document.querySelectorAll('[data-weight-input]').forEach((input) => {
+    if (!input.matches(':focus')) input.value = weight;
   });
 }
 
@@ -365,22 +491,50 @@ function populateFoodSelect() {
   manual.textContent = 'Manual entry';
   select.appendChild(manual);
 
-  const grouped = catalogs.foods.reduce((acc, food) => {
-    acc[food.category] = acc[food.category] || [];
-    acc[food.category].push(food);
+  const user = getUser();
+  const combinedFoods = [...catalogs.foods, ...user.savedFoods];
+  const groupedByCategory = combinedFoods.reduce((acc, food) => {
+    const cat = normalizeFoodCategory(food);
+    acc[cat] = acc[cat] || [];
+    acc[cat].push(food);
     return acc;
   }, {});
 
-  Object.entries(grouped).forEach(([category, foods]) => {
+  const recentOptGroup = document.createElement('optgroup');
+  recentOptGroup.label = 'Recent choices';
+  user.recentFoods.forEach((name) => {
+    const food = combinedFoods.find((f) => f.name === name);
+    if (!food) return;
+    const option = document.createElement('option');
+    option.value = food.name;
+    option.dataset.name = food.name;
+    option.textContent = `${food.name} (${food.kcal} kcal)`;
+    recentOptGroup.appendChild(option);
+  });
+  if (recentOptGroup.children.length) select.appendChild(recentOptGroup);
+
+  const categoryOrder = ['Fruits', 'Meals', 'Iranian Meals', 'Sweets & Desserts', 'Drinks', 'Proteins', 'Veggies', 'Other'];
+  const sortedCategories = Object.keys(groupedByCategory).sort((a, b) => {
+    const aIdx = categoryOrder.indexOf(a);
+    const bIdx = categoryOrder.indexOf(b);
+    if (aIdx === -1 && bIdx === -1) return a.localeCompare(b);
+    if (aIdx === -1) return 1;
+    if (bIdx === -1) return -1;
+    return aIdx - bIdx;
+  });
+
+  sortedCategories.forEach((category) => {
     const optgroup = document.createElement('optgroup');
     optgroup.label = category;
-    foods.forEach((food) => {
-      const option = document.createElement('option');
-      option.value = food.name;
-      option.dataset.name = food.name;
-      option.textContent = `${food.name} (${food.kcal} kcal)`;
-      optgroup.appendChild(option);
-    });
+    groupedByCategory[category]
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .forEach((food) => {
+        const option = document.createElement('option');
+        option.value = food.name;
+        option.dataset.name = food.name;
+        option.textContent = `${food.name} (${food.kcal} kcal)`;
+        optgroup.appendChild(option);
+      });
     select.appendChild(optgroup);
   });
 
@@ -410,6 +564,7 @@ function populateActivitySelect() {
 }
 
 function renderAll() {
+  syncWeightInputs();
   renderProfileMetrics();
   renderFoodTable();
   renderExerciseTable();
@@ -419,6 +574,8 @@ function renderAll() {
   renderStreaks();
   renderSnapshotMetrics();
   renderDetoxStats();
+  renderInsights();
+  renderFitness();
 }
 
 function renderProfileMetrics() {
@@ -523,6 +680,93 @@ function renderSnapshotMetrics() {
   `;
 }
 
+function renderInsights() {
+  const user = getUser();
+  const summary = summarizeDate(document.getElementById('log-date').value);
+  const insightContainer = document.getElementById('insight-cards');
+  if (!insightContainer) return;
+  const onboarding = document.getElementById('onboarding-hint');
+  if (onboarding) onboarding.classList.toggle('hidden', !!state.onboarded);
+  const detoxDays = user.detox.daily.filter((d) => d.keptPlan).length;
+  const initial = user.profile.initialWeight || summary.currentWeight;
+  const delta = summary.currentWeight - initial;
+  const direction = delta <= 0 ? 'Weight loss' : 'Weight gain';
+  const directionClass = delta <= 0 ? 'positive' : 'negative';
+  const avgWeekly = averageDeficit(7);
+  const weightTrend = buildPredictions();
+  const lastSeven = weightTrend.slice(-7);
+  const trendDelta = lastSeven.length ? lastSeven[lastSeven.length - 1].predicted - lastSeven[0].predicted : 0;
+  const percentChange = initial ? ((Math.abs(delta) / initial) * 100).toFixed(1) : 0;
+  const keptPercent = user.detox.daily.length ? Math.round((detoxDays / user.detox.daily.length) * 100) : 0;
+
+  insightContainer.innerHTML = `
+    <div class="insight-card ${directionClass}">
+      <div class="label">${direction}</div>
+      <div class="value">${Math.abs(delta).toFixed(1)} kg</div>
+      <small>${percentChange}% of initial (${initial.toFixed(1)} kg)</small>
+    </div>
+    <div class="insight-card">
+      <div class="label">Average deficit (7d)</div>
+      <div class="value">${avgWeekly.deficit.toFixed(0)} kcal</div>
+      <small>Avg weight drift ${(avgWeekly.weightDeltaKg).toFixed(2)} kg</small>
+    </div>
+    <div class="insight-card">
+      <div class="label">Detox adherence</div>
+      <div class="value">${keptPercent}%</div>
+      <small>${detoxDays} days on plan</small>
+    </div>
+    <div class="insight-card">
+      <div class="label">Weight trend (7d)</div>
+      <div class="value">${trendDelta >= 0 ? '+' : ''}${trendDelta.toFixed(2)} kg</div>
+      <small>Based on predictions</small>
+    </div>
+  `;
+
+  renderInsightCharts(weightTrend);
+}
+
+function averageDeficit(days) {
+  const user = getUser();
+  const dates = new Set();
+  user.foods.forEach((f) => dates.add(f.date));
+  user.exercises.forEach((e) => dates.add(e.date));
+  const sorted = [...dates].sort().slice(-days);
+  if (!sorted.length) return { deficit: 0, weightDeltaKg: 0 };
+  const totals = sorted.reduce((acc, date) => {
+    const sum = summarizeDate(date);
+    acc.deficit += sum.deficit;
+    acc.weightDeltaKg += sum.weightDeltaKg;
+    return acc;
+  }, { deficit: 0, weightDeltaKg: 0 });
+  return { deficit: totals.deficit / sorted.length, weightDeltaKg: totals.weightDeltaKg };
+}
+
+function renderInsightCharts(weightTrend) {
+  const ctx = document.getElementById('insight-weight-chart');
+  if (!ctx) return;
+  const labels = weightTrend.map((w) => w.date);
+  const predicted = weightTrend.map((w) => w.predicted);
+  if (insightChart) insightChart.destroy();
+  insightChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Predicted weight (kg)',
+          data: predicted,
+          borderColor: '#2563eb',
+          backgroundColor: 'rgba(37, 99, 235, 0.15)',
+          tension: 0.25,
+        },
+      ],
+    },
+    options: { plugins: { legend: { display: false } } },
+  });
+
+  drawDeficitTrend();
+}
+
 function renderWeightTable() {
   const tbody = document.querySelector('#weight-table tbody');
   tbody.innerHTML = '';
@@ -589,6 +833,65 @@ function renderDetoxStats() {
   `;
 
   drawDetoxChart(entries);
+}
+
+function renderFitness() {
+  const u = getUser();
+  const date = document.getElementById('log-date').value;
+  const strengthBody = document.querySelector('#strength-table tbody');
+  const cardioBody = document.querySelector('#cardio-table tbody');
+  if (!strengthBody || !cardioBody) return;
+  strengthBody.innerHTML = '';
+  cardioBody.innerHTML = '';
+
+  const strengthRows = u.fitness.strength.filter((e) => e.date === date).sort((a, b) => a.time.localeCompare(b.time));
+  strengthRows.forEach((row) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${row.time}</td>
+      <td>${row.exercise}</td>
+      <td>${row.sets}</td>
+      <td>${row.reps}</td>
+      <td>${row.weight}</td>
+    `;
+    strengthBody.appendChild(tr);
+  });
+
+  const cardioRows = u.fitness.cardio.filter((e) => e.date === date).sort((a, b) => a.time.localeCompare(b.time));
+  cardioRows.forEach((row) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${row.time}</td>
+      <td>${row.activity}</td>
+      <td>${row.mins}</td>
+      <td>${row.speed || '-'} / ${row.incline || '-'}</td>
+    `;
+    cardioBody.appendChild(tr);
+  });
+
+  renderStrengthProgress(u.fitness.strength);
+}
+
+function renderStrengthProgress(entries) {
+  const ctx = document.getElementById('strength-chart');
+  if (!ctx) return;
+  const grouped = entries.reduce((acc, entry) => {
+    acc[entry.exercise] = acc[entry.exercise] || [];
+    acc[entry.exercise].push(entry);
+    return acc;
+  }, {});
+  const recentExercise = Object.entries(grouped).sort((a, b) => b[1].length - a[1].length)[0];
+  if (!recentExercise) return;
+  const [name, rows] = recentExercise;
+  const sorted = rows.sort((a, b) => a.date.localeCompare(b.date));
+  const labels = sorted.map((r) => `${r.date}`);
+  const weights = sorted.map((r) => r.weight || 0);
+  if (strengthChart) strengthChart.destroy();
+  strengthChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets: [{ label: `${name} (kg)`, data: weights, borderColor: '#0ea5e9', tension: 0.25 }] },
+    options: { plugins: { legend: { position: 'bottom' } } },
+  });
 }
 
 function daysSinceViolation(itemId) {
@@ -730,6 +1033,7 @@ function clearFoodInputs() {
   document.getElementById('food-fiber').value = '';
   document.getElementById('food-kcal').value = '';
   document.getElementById('food-select').value = '';
+  document.getElementById('food-category').value = '';
 }
 
 function calcCalories({ protein = 0, fat = 0, carbs = 0, alcohol = 0, fiber = 0 }) {
@@ -771,6 +1075,24 @@ function activityLabel(value) {
 function getMetLabel(value) {
   const match = catalogs.activities.find((a) => a.met === value);
   return match ? match.label : `${value} METs`;
+}
+
+function normalizeFoodCategory(food) {
+  const category = (food.category || '').toLowerCase();
+  if (category.includes('fruit')) return 'Fruits';
+  if (category.includes('sweet') || category.includes('dessert') || category.includes('candy') || category.includes('cake')) return 'Sweets & Desserts';
+  if (category.includes('drink') || category.includes('tea') || category.includes('coffee') || category.includes('juice')) return 'Drinks';
+  if (category.includes('iran') || category.includes('persian')) return 'Iranian Meals';
+  if (category.includes('veg') || category.includes('salad')) return 'Veggies';
+  if (category.includes('meat') || category.includes('egg') || category.includes('fish') || category.includes('protein')) return 'Proteins';
+  if (category.includes('meal') || category.includes('sandwich') || category.includes('soup') || category.includes('stew') || category.includes('kebab')) return 'Meals';
+  return 'Other';
+}
+
+function markRecentFood(name) {
+  const user = getUser();
+  user.recentFoods = [name, ...user.recentFoods.filter((n) => n !== name)];
+  if (user.recentFoods.length > 15) user.recentFoods = user.recentFoods.slice(0, 15);
 }
 
 function drawCalorieChart(summary) {

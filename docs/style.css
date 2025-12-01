@@ -6,6 +6,7 @@ body {
   background: #f8fafc;
   color: #0f172a;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  padding-top: 1rem;
 }
 
 h1,
@@ -28,11 +29,44 @@ h4 {
   margin-bottom: 0.2rem;
 }
 
+.top-nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(248, 250, 252, 0.92);
+  backdrop-filter: blur(6px);
+  padding: 0.65rem 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.nav-toggle {
+  display: none;
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  padding: 0.4rem 0.7rem;
+  font-size: 1.1rem;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+}
+
 .tab-bar {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.1rem;
+  justify-content: flex-end;
 }
 
 .tab {
@@ -49,6 +83,14 @@ h4 {
   border-color: #cbd5e1;
   box-shadow: 0 12px 25px rgba(15, 23, 42, 0.08);
   font-weight: 600;
+}
+
+.sticky-tabs {
+  align-self: end;
+}
+
+.tab-bar.collapsed {
+  display: none;
 }
 
 .tab-panel {
@@ -113,6 +155,43 @@ header h1 {
   align-items: start;
 }
 
+.insight-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem;
+  margin: 0.75rem 0 1rem;
+}
+
+.insight-card {
+  padding: 1rem;
+  border-radius: 0.9rem;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+}
+
+.insight-card .label {
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  color: #475569;
+}
+
+.insight-card .value {
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.insight-card.positive {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+}
+
+.insight-card.negative {
+  border-color: #fecdd3;
+  background: #fff1f2;
+}
+
 .chart-box {
   background: #ffffff;
   border: 1px solid #e2e8f0;
@@ -150,6 +229,53 @@ header h1 {
   font-weight: 700;
 }
 
+.banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.9rem 1rem;
+  border-radius: 0.85rem;
+  background: linear-gradient(135deg, #eef2ff, #e0f2fe);
+  border: 1px solid #c7d2fe;
+  margin-bottom: 1rem;
+}
+
+.banner button {
+  margin: 0;
+}
+
+.banner.hidden {
+  display: none;
+}
+
+.intake-tabs {
+  display: inline-flex;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.intake-tab {
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+}
+
+.intake-tab.active {
+  background: #0f172a;
+  color: #fff;
+  border-color: #0f172a;
+}
+
+.intake-panel {
+  display: none;
+}
+
+.intake-panel.active {
+  display: block;
+}
+
 .flex-between {
   display: flex;
   align-items: center;
@@ -174,7 +300,9 @@ header h1 {
 
 #food-table tbody tr:nth-child(odd),
 #exercise-table tbody tr:nth-child(odd),
-#weight-table tbody tr:nth-child(odd) {
+#weight-table tbody tr:nth-child(odd),
+#strength-table tbody tr:nth-child(odd),
+#cardio-table tbody tr:nth-child(odd) {
   background: #f1f5f9;
 }
 
@@ -255,8 +383,25 @@ header h1 {
     padding: 1rem;
   }
 
+  .nav-inner {
+    align-items: flex-start;
+  }
+
+  .nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .tab-bar {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    display: none;
+  }
+
+  .tab-bar.open {
+    display: flex;
   }
 
   .chart-box {

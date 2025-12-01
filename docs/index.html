@@ -19,23 +19,407 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <nav class="top-nav">
+      <div class="container nav-inner">
+        <div class="brand">Calorie &amp; Weight Tracker</div>
+        <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+          ☰
+        </button>
+        <div class="tab-bar sticky-tabs" id="nav-links">
+          <button class="tab active" data-tab="insights">Insights</button>
+          <button class="tab" data-tab="intake">Intake</button>
+          <button class="tab" data-tab="fitness">Fitness</button>
+          <button class="tab" data-tab="detox">Detox</button>
+          <button class="tab" data-tab="account">Account</button>
+        </div>
+      </div>
+    </nav>
+
     <header class="container hero">
       <div>
         <p class="kicker">Personal wellness cockpit</p>
         <h1>Calorie &amp; Weight Tracker</h1>
-        <p class="muted">Lightweight browser app to log food, exercise, fasting, detox streaks, and see weight projections.</p>
+        <p class="muted">Log food, exercise, fasting, detox streaks, and see trends in one place.</p>
       </div>
     </header>
 
-    <nav class="container tab-bar">
-      <button class="tab active" data-tab="profile">Profile</button>
-      <button class="tab" data-tab="log">Entries</button>
-      <button class="tab" data-tab="visuals">Visualizations</button>
-      <button class="tab" data-tab="detox">Fasting &amp; Detox</button>
-    </nav>
+    <main class="container page-content">
+      <section id="panel-insights" class="tab-panel active">
+        <article class="card">
+          <header class="flex-between">
+            <div>
+              <p class="kicker">Overview</p>
+              <h2>Summary &amp; insights</h2>
+              <p class="muted">Weight change, detox adherence, and recent calorie trends.</p>
+            </div>
+            <div class="pill" id="streaks"></div>
+          </header>
+          <div class="banner" id="onboarding-hint">
+            <div>
+              <strong>Finish account setup</strong>
+              <p class="muted">Update your age, height, weight, activity, and fasting window for accurate insights.</p>
+            </div>
+            <button onclick="document.querySelector('[data-tab=\"account\"]').click();">Go to account</button>
+          </div>
+          <div id="insight-cards" class="insight-grid"></div>
+          <div class="chart-row">
+            <div class="chart-box">
+              <div class="chart-title">Weight trend</div>
+              <canvas class="chart" id="insight-weight-chart" height="220"></canvas>
+            </div>
+            <div class="chart-box">
+              <div class="chart-title">Daily deficit trend</div>
+              <canvas class="chart" id="calorie-line" height="220"></canvas>
+            </div>
+          </div>
+          <div class="metric-grid" id="snapshot-metrics"></div>
+        </article>
 
-    <main class="container">
-      <section id="panel-profile" class="tab-panel active">
+        <section class="grid">
+          <article class="card">
+            <header class="flex-between">
+              <div>
+                <h2>Log measured weight</h2>
+                <p class="muted">Record your latest weigh-in to keep insights accurate.</p>
+              </div>
+              <span class="pill">Actual weight</span>
+            </header>
+            <div class="grid compact">
+              <label>Weight (kg)
+                <input type="number" id="weight-entry-quick" step="0.1" min="20" max="300" data-weight-input />
+              </label>
+              <div class="grid compact" style="align-items:end;">
+                <button id="add-weight-quick" data-weight-button data-weight-target="weight-entry-quick">Save weight</button>
+                <small class="muted">Applies to today's date and updates your profile.</small>
+              </div>
+            </div>
+          </article>
+
+          <article class="card">
+            <header><h2>Daily summary</h2></header>
+            <div id="summary"></div>
+            <div class="chart-row">
+              <div class="chart-box">
+                <div class="chart-title">Calories today</div>
+                <canvas id="calorie-chart" height="200"></canvas>
+              </div>
+              <div class="chart-box">
+                <div class="chart-title">Calorie mix</div>
+                <canvas class="chart" id="pie-chart" height="200"></canvas>
+              </div>
+              <div class="chart-box">
+                <div class="chart-title">Running deficit</div>
+                <canvas class="chart" id="deficit-chart" height="200"></canvas>
+              </div>
+            </div>
+          </article>
+          <article class="card">
+            <header><h2>Weight log</h2></header>
+            <div class="table-scroll">
+              <table id="weight-table">
+                <thead><tr><th>Date</th><th>Actual (kg)</th><th>Predicted (kg)</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div class="chart-box" style="margin-top:0.75rem;">
+              <div class="chart-title">Actual vs predicted</div>
+              <canvas class="chart" id="weight-chart" height="220"></canvas>
+            </div>
+          </article>
+        </section>
+      </section>
+
+      <section id="panel-intake" class="tab-panel">
+        <article class="card">
+          <header class="flex-between">
+            <div>
+              <h2>Daily entries</h2>
+              <p class="muted">Choose a date, then log food or exercise with organized pickers.</p>
+            </div>
+            <label>Date<input type="date" id="log-date" /></label>
+          </header>
+
+          <div class="intake-tabs">
+            <button class="intake-tab active" data-tab="food">Food</button>
+            <button class="intake-tab" data-tab="exercise">Exercise &amp; weight</button>
+          </div>
+
+          <div id="intake-food" class="intake-panel active">
+            <div class="grid">
+              <article class="subcard">
+                <header class="flex-between"><h3>Add Food</h3><small id="food-db-count"></small></header>
+                <label>Choose food (search by grouped list)
+                  <select id="food-select"></select>
+                </label>
+                <div class="grid compact">
+                  <label>Time<input type="time" id="food-time" /></label>
+                  <label>Quantity<input type="number" id="food-qty" min="0" step="0.1" value="1" /></label>
+                </div>
+                <label>Or enter custom name<input type="text" id="food-name" placeholder="Custom food" /></label>
+                <label>Category / group<input type="text" id="food-category" placeholder="Fruits, Drinks, Iranian Meals..." /></label>
+                <div class="grid">
+                  <label>Protein (g)<input type="number" id="food-protein" min="0" step="0.1" /></label>
+                  <label>Fat (g)<input type="number" id="food-fat" min="0" step="0.1" /></label>
+                  <label>Carbs (g)<input type="number" id="food-carbs" min="0" step="0.1" /></label>
+                  <label>Alcohol (g)<input type="number" id="food-alcohol" min="0" step="0.1" /></label>
+                  <label>Fiber (g)<input type="number" id="food-fiber" min="0" step="0.1" /></label>
+                  <label>Calories (override)<input type="number" id="food-kcal" min="0" step="1" /></label>
+                </div>
+                <button id="add-food">Add food</button>
+                <small>Calories auto-calc via Atwater factors when left blank. Saved foods appear at the top next time.</small>
+              </article>
+            </div>
+
+            <section class="grid">
+              <article>
+                <header class="flex-between"><h2>Food log</h2><span id="intake-total" class="pill"></span></header>
+                <div class="table-scroll">
+                  <table id="food-table">
+                    <thead><tr><th>Time</th><th>Food</th><th>Qty</th><th>kcal</th><th>P</th><th>F</th><th>C</th><th></th></tr></thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </article>
+            </section>
+          </div>
+
+          <div id="intake-exercise" class="intake-panel">
+            <div class="grid">
+              <article class="subcard">
+                <header><h3>Add Exercise</h3></header>
+                <label>Type / MET value (organized by activity)
+                  <select id="exercise-type"></select>
+                </label>
+                <div class="grid compact">
+                  <label>Time<input type="time" id="exercise-time" /></label>
+                  <label>Duration (minutes)<input type="number" id="exercise-mins" min="1" step="1" /></label>
+                </div>
+                <button id="add-exercise">Add exercise</button>
+                <small>Calories/min = (MET × 3.5 × weight) / 200</small>
+              </article>
+
+              <article class="subcard">
+                <header class="flex-between">
+                  <h3>Weight</h3>
+                  <div class="grid compact">
+                    <label>Weight (kg)<input type="number" id="weight-entry" step="0.1" data-weight-input /></label>
+                    <button id="add-weight" data-weight-button data-weight-target="weight-entry">Log weight</button>
+                  </div>
+                </header>
+                <p class="muted">Keep recent weight updated for better BMR and predictions.</p>
+              </article>
+            </div>
+
+            <section class="grid">
+              <article>
+                <header class="flex-between"><h2>Exercise log</h2><span id="burn-total" class="pill"></span></header>
+                <div class="table-scroll">
+                  <table id="exercise-table">
+                    <thead><tr><th>Time</th><th>Type</th><th>Mins</th><th>kcal</th><th></th></tr></thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </article>
+            </section>
+          </div>
+        </article>
+      </section>
+
+      <section id="panel-fitness" class="tab-panel">
+        <article class="card">
+          <header class="flex-between">
+            <div>
+              <h2>Fitness tracking</h2>
+              <p class="muted">Track lifting sets, reps, weights, and cardio speed/incline.</p>
+            </div>
+            <div class="pill">Strength &amp; cardio</div>
+          </header>
+
+          <div class="grid">
+            <article class="subcard">
+              <header><h3>Strength / machines</h3></header>
+              <label>Exercise
+                <select id="fitness-exercise">
+                  <optgroup label="Chest machines">
+                    <option>Seated Chest Press</option>
+                    <option>Horizontal Chest Press</option>
+                    <option>Decline Chest Press</option>
+                    <option>Incline Chest Press</option>
+                    <option>Pec Deck Fly</option>
+                    <option>Rear Delt Fly (machine reversed)</option>
+                    <option>High-to-Low Cable Fly</option>
+                    <option>Low-to-High Cable Fly</option>
+                    <option>Standing Cable Chest Fly</option>
+                    <option>Single-Arm Cable Press</option>
+                  </optgroup>
+                  <optgroup label="Back machines">
+                    <option>Wide-Grip Lat Pulldown</option>
+                    <option>Close-Grip Pulldown</option>
+                    <option>Reverse-Grip Pulldown</option>
+                    <option>Seated Cable Row</option>
+                    <option>Wide-Grip Row</option>
+                    <option>Neutral-Grip Row</option>
+                    <option>Assisted Pull-Up</option>
+                    <option>Assisted Chin-Up</option>
+                    <option>Back Extension</option>
+                  </optgroup>
+                  <optgroup label="Shoulders">
+                    <option>Seated Shoulder Press</option>
+                    <option>Machine Lateral Raise</option>
+                    <option>Rear Delt Fly</option>
+                  </optgroup>
+                  <optgroup label="Arms">
+                    <option>Machine Bicep Curl</option>
+                    <option>Cable Bicep Curl</option>
+                    <option>Hammer Curl (rope)</option>
+                    <option>Single-Arm Cable Curl</option>
+                    <option>Seated Tricep Extension</option>
+                    <option>Tricep Pushdown</option>
+                    <option>Overhead Cable Extension</option>
+                    <option>Single-Arm Cable Kickback</option>
+                  </optgroup>
+                  <optgroup label="Legs &amp; hips">
+                    <option>Horizontal Leg Press</option>
+                    <option>45-Degree Leg Press</option>
+                    <option>Single-Leg Press</option>
+                    <option>Leg Extension</option>
+                    <option>Seated Leg Curl</option>
+                    <option>Lying Leg Curl</option>
+                    <option>Hack Squat</option>
+                    <option>Smith Machine Squat</option>
+                    <option>Split Squat</option>
+                    <option>Calf Raise</option>
+                    <option>Hip Thrust</option>
+                    <option>Standing Calf Raise</option>
+                    <option>Seated Calf Raise</option>
+                    <option>Glute Kickback</option>
+                    <option>Hip Abduction</option>
+                    <option>Hip Adduction</option>
+                    <option>Cable Kickbacks</option>
+                    <option>Cable Hip Abduction</option>
+                    <option>Hip Adduction (cable)</option>
+                  </optgroup>
+                  <optgroup label="Core &amp; full body">
+                    <option>Machine Crunch</option>
+                    <option>Torso Rotation</option>
+                    <option>Cable Woodchop</option>
+                    <option>Face Pull</option>
+                    <option>Cable Squat</option>
+                    <option>Cable Lunge</option>
+                    <option>Cable Row / Press</option>
+                    <option>Smith Machine Bench Press</option>
+                    <option>Smith Machine Deadlift</option>
+                    <option>Smith Machine Overhead Press</option>
+                  </optgroup>
+                </select>
+              </label>
+              <div class="grid compact">
+                <label>Time<input type="time" id="strength-time" /></label>
+                <label>Sets<input type="number" id="fitness-sets" min="1" step="1" /></label>
+                <label>Reps<input type="number" id="fitness-reps" min="1" step="1" /></label>
+                <label>Weight (kg)<input type="number" id="fitness-weight" min="0" step="0.5" /></label>
+              </div>
+              <button id="add-strength">Add strength set</button>
+            </article>
+
+            <article class="subcard">
+              <header><h3>Cardio</h3></header>
+              <label>Activity
+                <select id="cardio-type">
+                  <option value="Treadmill">Treadmill run</option>
+                  <option value="Elliptical">Elliptical</option>
+                  <option value="Rowing">Rowing machine</option>
+                  <option value="Cycling">Stationary bike</option>
+                  <option value="Stair Climber">Stair climber</option>
+                  <option value="Outdoor run">Outdoor run</option>
+                </select>
+              </label>
+              <label>Custom label (optional)<input type="text" id="cardio-custom" placeholder="e.g., Zone 2 jog" /></label>
+              <div class="grid compact">
+                <label>Time<input type="time" id="cardio-time" /></label>
+                <label>Minutes<input type="number" id="cardio-mins" min="1" /></label>
+                <label>Speed<input type="text" id="cardio-speed" placeholder="e.g., 9 km/h" /></label>
+                <label>Incline<input type="text" id="cardio-incline" placeholder="e.g., 2%" /></label>
+              </div>
+              <button id="add-cardio">Add cardio</button>
+            </article>
+          </div>
+
+          <section class="grid">
+            <article>
+              <header><h2>Strength log</h2></header>
+              <div class="table-scroll">
+                <table id="strength-table">
+                  <thead><tr><th>Time</th><th>Exercise</th><th>Sets</th><th>Reps</th><th>Weight</th></tr></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </article>
+            <article>
+              <header><h2>Cardio log</h2></header>
+              <div class="table-scroll">
+                <table id="cardio-table">
+                  <thead><tr><th>Time</th><th>Activity</th><th>Mins</th><th>Speed / incline</th></tr></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </article>
+          </section>
+
+          <div class="chart-box">
+            <div class="chart-title">Recent lifting trend</div>
+            <canvas class="chart" id="strength-chart" height="240"></canvas>
+          </div>
+        </article>
+      </section>
+
+      <section id="panel-detox" class="tab-panel">
+        <article class="card">
+          <header class="flex-between">
+            <div>
+              <h2>Fasting &amp; Dopamine Detox</h2>
+              <p>Set daily adherence, track streaks, and log custom items.</p>
+            </div>
+            <div class="countdown" id="fasting-countdown"></div>
+          </header>
+          <div class="detox-layout">
+            <div id="detox-list" class="grid compact"></div>
+            <div class="detox-actions">
+              <label><input type="checkbox" id="detox-kept" /> Stayed on plan today</label>
+              <button id="save-detox-day">Save day</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <header><h2>Detox Items</h2></header>
+          <div class="grid compact">
+            <label>Label<input type="text" id="detox-label" placeholder="e.g., Screens &lt; 2h" /></label>
+            <label>Type
+              <select id="detox-type">
+                <option value="checkbox">Checkbox</option>
+                <option value="number">Number</option>
+              </select>
+            </label>
+            <button id="add-detox-item">Add</button>
+          </div>
+          <p class="muted">Defaults include mood, cigarettes, alcohol, gym, weight, fasting, sugar, fat, and pornography.</p>
+        </article>
+
+        <article class="card">
+          <header class="flex-between">
+            <div>
+              <h2>Plan Adherence</h2>
+              <p>Percent of days stuck to the plan and time-series adherence.</p>
+            </div>
+            <div class="bold-metric" id="plan-percent"></div>
+          </header>
+          <div class="metric-grid" id="detox-metrics"></div>
+          <div class="chart-box"><canvas class="chart" id="detox-chart" height="220"></canvas></div>
+        </article>
+      </section>
+
+      <section id="panel-account" class="tab-panel">
         <article class="card">
           <header class="flex-between">
             <div>
@@ -86,184 +470,6 @@
             </footer>
           </form>
           <div id="profile-metrics" class="metric-card"></div>
-        </article>
-      </section>
-
-      <section id="panel-log" class="tab-panel">
-        <article class="card">
-          <header class="flex-between">
-            <div>
-              <h2>Daily Entries</h2>
-              <p>Select a date, then log food, exercise, and weight.</p>
-            </div>
-            <label>Date<input type="date" id="log-date" /></label>
-          </header>
-          <div class="grid">
-            <article class="subcard">
-              <header class="flex-between"><h3>Add Food</h3><small id="food-db-count"></small></header>
-              <label>Choose food (edit docs/data.json to add more)
-                <select id="food-select"></select>
-              </label>
-              <div class="grid compact">
-                <label>Time<input type="time" id="food-time" /></label>
-                <label>Quantity<input type="number" id="food-qty" min="0" step="0.1" value="1" /></label>
-              </div>
-              <label>Or enter custom name<input type="text" id="food-name" placeholder="Custom food" /></label>
-              <div class="grid">
-                <label>Protein (g)<input type="number" id="food-protein" min="0" step="0.1" /></label>
-                <label>Fat (g)<input type="number" id="food-fat" min="0" step="0.1" /></label>
-                <label>Carbs (g)<input type="number" id="food-carbs" min="0" step="0.1" /></label>
-                <label>Alcohol (g)<input type="number" id="food-alcohol" min="0" step="0.1" /></label>
-                <label>Fiber (g)<input type="number" id="food-fiber" min="0" step="0.1" /></label>
-                <label>Calories (override)<input type="number" id="food-kcal" min="0" step="1" /></label>
-              </div>
-              <button id="add-food">Add food</button>
-              <small>Calories auto-calc via Atwater factors when left blank.</small>
-            </article>
-
-            <article class="subcard">
-              <header><h3>Add Exercise</h3></header>
-              <label>Type / MET value (edit docs/data.json to add more)
-                <select id="exercise-type"></select>
-              </label>
-              <div class="grid compact">
-                <label>Time<input type="time" id="exercise-time" /></label>
-                <label>Duration (minutes)<input type="number" id="exercise-mins" min="1" step="1" /></label>
-              </div>
-              <button id="add-exercise">Add exercise</button>
-              <small>Calories/min = (MET × 3.5 × weight) / 200</small>
-            </article>
-
-            <article class="subcard">
-              <header class="flex-between">
-                <h3>Weight</h3>
-                <div class="grid compact">
-                  <label>Weight (kg)<input type="number" id="weight-entry" step="0.1" /></label>
-                  <button id="add-weight">Log weight</button>
-                </div>
-              </header>
-              <p class="muted">Keep recent weight updated for better BMR and predictions.</p>
-            </article>
-          </div>
-        </article>
-
-        <section class="grid">
-          <article>
-            <header class="flex-between"><h2>Food Log</h2><span id="intake-total" class="pill"></span></header>
-            <div class="table-scroll">
-              <table id="food-table">
-                <thead><tr><th>Time</th><th>Food</th><th>Qty</th><th>kcal</th><th>P</th><th>F</th><th>C</th><th></th></tr></thead>
-                <tbody></tbody>
-              </table>
-            </div>
-          </article>
-          <article>
-            <header class="flex-between"><h2>Exercise Log</h2><span id="burn-total" class="pill"></span></header>
-            <div class="table-scroll">
-              <table id="exercise-table">
-                <thead><tr><th>Time</th><th>Type</th><th>Mins</th><th>kcal</th><th></th></tr></thead>
-                <tbody></tbody>
-              </table>
-            </div>
-          </article>
-        </section>
-
-        <section class="grid">
-          <article>
-            <header><h2>Daily Summary</h2></header>
-            <div id="summary"></div>
-            <canvas id="calorie-chart" height="200"></canvas>
-          </article>
-          <article>
-            <header><h2>Weight Log</h2></header>
-            <div class="table-scroll">
-              <table id="weight-table">
-                <thead><tr><th>Date</th><th>Actual (kg)</th><th>Predicted (kg)</th></tr></thead>
-                <tbody></tbody>
-              </table>
-            </div>
-          </article>
-        </section>
-      </section>
-
-      <section id="panel-visuals" class="tab-panel">
-        <article class="card">
-          <header class="flex-between">
-            <div>
-              <h2>Daily Snapshot</h2>
-              <p>Base burn, exercise, intake, deficit, and today’s weight shifts.</p>
-            </div>
-            <div class="pill" id="streaks"></div>
-          </header>
-          <div class="chart-row">
-            <div class="chart-box">
-              <div class="chart-title">Calorie mix</div>
-              <canvas class="chart" id="pie-chart" height="220"></canvas>
-            </div>
-            <div class="chart-box">
-              <div class="chart-title">Running deficit</div>
-              <canvas class="chart" id="deficit-chart" height="220"></canvas>
-            </div>
-          </div>
-          <div class="metric-grid" id="snapshot-metrics"></div>
-        </article>
-
-        <section class="grid">
-          <article class="card">
-            <header><h2>Running Calorie Line</h2></header>
-            <p class="muted">Tracks how each intake or workout moves the daily total versus your base burn.</p>
-            <div class="chart-box"><canvas class="chart" id="calorie-line" height="220"></canvas></div>
-          </article>
-          <article class="card">
-            <header><h2>Weight &amp; Prediction</h2></header>
-            <div class="chart-box"><canvas class="chart" id="weight-chart" height="240"></canvas></div>
-          </article>
-        </section>
-      </section>
-
-      <section id="panel-detox" class="tab-panel">
-        <article class="card">
-          <header class="flex-between">
-            <div>
-              <h2>Fasting &amp; Dopamine Detox</h2>
-              <p>Set daily adherence, track streaks, and log custom items.</p>
-            </div>
-            <div class="countdown" id="fasting-countdown"></div>
-          </header>
-          <div class="detox-layout">
-            <div id="detox-list" class="grid compact"></div>
-            <div class="detox-actions">
-              <label><input type="checkbox" id="detox-kept" /> Stayed on plan today</label>
-              <button id="save-detox-day">Save day</button>
-            </div>
-          </div>
-        </article>
-
-        <article class="card">
-          <header><h2>Detox Items</h2></header>
-          <div class="grid compact">
-            <label>Label<input type="text" id="detox-label" placeholder="e.g., Screens &lt; 2h" /></label>
-            <label>Type
-              <select id="detox-type">
-                <option value="checkbox">Checkbox</option>
-                <option value="number">Number</option>
-              </select>
-            </label>
-            <button id="add-detox-item">Add</button>
-          </div>
-          <p class="muted">Defaults include mood, cigarettes, alcohol, gym, weight, fasting, sugar, fat, and pornography.</p>
-        </article>
-
-        <article class="card">
-          <header class="flex-between">
-            <div>
-              <h2>Plan Adherence</h2>
-              <p>Percent of days stuck to the plan and time-series adherence.</p>
-            </div>
-            <div class="bold-metric" id="plan-percent"></div>
-          </header>
-          <div class="metric-grid" id="detox-metrics"></div>
-          <div class="chart-box"><canvas class="chart" id="detox-chart" height="220"></canvas></div>
         </article>
       </section>
     </main>
