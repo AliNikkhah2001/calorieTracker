@@ -63,8 +63,8 @@ function defaultProfile() {
     name: 'Default',
     age: 30,
     height: 170,
-    weight: 70,
-    initialWeight: 70,
+    weight: 0,
+    initialWeight: 0,
     gender: 'Male',
     activity: 1.2,
     deficit: 500,
@@ -103,6 +103,15 @@ function ensureMigrations(parsed) {
   if (!parsed.users) return parsed;
   Object.values(parsed.users).forEach((user) => {
     user.profile = { ...defaultProfile(), ...user.profile };
+    const looksDefaultWeight =
+      user.profile.weight === 70 &&
+      user.profile.initialWeight === 70 &&
+      (!user.weights || user.weights.length === 0) &&
+      parsed.onboarded === false;
+    if (looksDefaultWeight) {
+      user.profile.weight = 0;
+      user.profile.initialWeight = 0;
+    }
     if (!user.profile.initialWeight) user.profile.initialWeight = user.profile.weight;
     user.detox = user.detox || defaultDetoxState();
     user.savedFoods = user.savedFoods || [];
@@ -259,7 +268,7 @@ function bindProfileForm() {
     const profile = getUser().profile;
     form.age.value = profile.age;
     form.height.value = profile.height;
-    form.weight.value = profile.weight;
+    form.weight.value = profile.weight || '';
     form.gender.value = profile.gender;
     form.activity.value = profile.activity;
     form.deficit.value = profile.deficit;
