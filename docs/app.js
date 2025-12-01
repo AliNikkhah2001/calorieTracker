@@ -101,17 +101,23 @@ function saveState() {
 
 function ensureMigrations(parsed) {
   if (!parsed.users) return parsed;
+  const legacyDefaultWeight = 70;
   Object.values(parsed.users).forEach((user) => {
     user.profile = { ...defaultProfile(), ...user.profile };
+    const weightsEmpty = !user.weights || user.weights.length === 0;
     const looksDefaultWeight =
-      user.profile.weight === 70 &&
-      user.profile.initialWeight === 70 &&
-      (!user.weights || user.weights.length === 0) &&
-      parsed.onboarded === false;
+      user.profile.weight === legacyDefaultWeight &&
+      user.profile.initialWeight === legacyDefaultWeight &&
+      weightsEmpty;
     if (looksDefaultWeight) {
       user.profile.weight = 0;
       user.profile.initialWeight = 0;
     }
+    const legacyInitialMismatch =
+      user.profile.initialWeight === legacyDefaultWeight &&
+      user.profile.weight !== legacyDefaultWeight &&
+      weightsEmpty;
+    if (legacyInitialMismatch) user.profile.initialWeight = user.profile.weight;
     if (!user.profile.initialWeight) user.profile.initialWeight = user.profile.weight;
     user.detox = user.detox || defaultDetoxState();
     user.savedFoods = user.savedFoods || [];
@@ -278,7 +284,8 @@ function bindProfileForm() {
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    const profile = getUser().profile;
+    const user = getUser();
+    const profile = user.profile;
     profile.age = parseInt(form.age.value, 10) || 0;
     profile.height = parseFloat(form.height.value) || 0;
     profile.weight = parseFloat(form.weight.value) || 0;
@@ -287,7 +294,12 @@ function bindProfileForm() {
     profile.deficit = parseFloat(form.deficit.value) || 0;
     profile.fastingStart = fastingStart.value || '18:00';
     profile.fastingEnd = fastingEnd.value || '20:00';
-    if (!profile.initialWeight) profile.initialWeight = profile.weight;
+    const legacyDefaultWeight = 70;
+    const shouldReplaceLegacyInitial =
+      (!profile.initialWeight || profile.initialWeight === legacyDefaultWeight) &&
+      profile.weight &&
+      (profile.weight !== legacyDefaultWeight || !user.weights.length);
+    if (shouldReplaceLegacyInitial) profile.initialWeight = profile.weight;
     state.onboarded = true;
     saveState();
     renderAll();
@@ -442,7 +454,10 @@ function bindWeightControls() {
       u.weights.push({ date, weight });
       u.weights.sort((a, b) => a.date.localeCompare(b.date));
       u.profile.weight = weight;
-      if (!u.profile.initialWeight) u.profile.initialWeight = weight;
+      const legacyDefaultWeight = 70;
+      if (!u.profile.initialWeight || u.profile.initialWeight === legacyDefaultWeight) {
+        u.profile.initialWeight = weight;
+      }
       saveState();
       renderAll();
     });
@@ -697,7 +712,14 @@ function renderInsights() {
   const onboarding = document.getElementById('onboarding-hint');
   if (onboarding) onboarding.classList.toggle('hidden', !!state.onboarded);
   const detoxDays = user.detox.daily.filter((d) => d.keptPlan).length;
-  const initial = user.profile.initialWeight || summary.currentWeight;
+  const legacyDefaultWeight = 70;
+  const firstLoggedWeight = user.weights.length ? user.weights[0].weight : null;
+  let initial = user.profile.initialWeight || firstLoggedWeight || summary.currentWeight;
+  const hasLegacyInitial =
+    user.profile.initialWeight === legacyDefaultWeight &&
+    user.profile.weight !== legacyDefaultWeight &&
+    firstLoggedWeight;
+  if (hasLegacyInitial) initial = firstLoggedWeight;
   const delta = summary.currentWeight - initial;
   const direction = delta <= 0 ? 'Weight loss' : 'Weight gain';
   const directionClass = delta <= 0 ? 'positive' : 'negative';
