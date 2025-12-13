@@ -72,6 +72,22 @@
               <canvas class="chart" id="calorie-line" height="220"></canvas>
             </div>
           </div>
+          <div class="chart-row responsive-stack">
+            <div class="chart-box calendar-box">
+              <div class="chart-title calendar-title">
+                <button id="calendar-prev" class="ghost" aria-label="Previous month">&larr;</button>
+                <span id="calendar-month"></span>
+                <button id="calendar-next" class="ghost" aria-label="Next month">&rarr;</button>
+              </div>
+              <p class="muted small">Colors reflect logged weight—lighter greens for lower weights and reds for higher.</p>
+              <div class="calendar-grid" id="weight-calendar"></div>
+            </div>
+            <div class="chart-box">
+              <div class="chart-title">Mood &amp; money</div>
+              <canvas class="chart" id="mood-chart" height="220"></canvas>
+              <div id="finance-summary" class="metric-grid"></div>
+            </div>
+          </div>
           <div class="metric-grid" id="snapshot-metrics"></div>
         </article>
 
@@ -125,6 +141,26 @@
               <div class="chart-title">Actual vs predicted</div>
               <canvas class="chart" id="weight-chart" height="220"></canvas>
             </div>
+          </article>
+          <article class="card" id="journal-form">
+            <header class="flex-between">
+              <div>
+                <h2>Daily wellbeing</h2>
+                <p class="muted">Log meds, mood, finances, and optional weight for any date.</p>
+              </div>
+              <label>Date<input type="date" id="journal-date" /></label>
+            </header>
+            <div class="grid compact">
+              <label>Weight (kg)<input type="number" id="journal-weight" step="0.1" data-weight-input /></label>
+              <label>Mood (1–5)<input type="number" id="journal-mood" min="1" max="5" /></label>
+              <label>Medications<input type="text" id="journal-meds" placeholder="e.g., Vitamin D, ibuprofen" /></label>
+              <label>Spending today ($)<input type="number" id="journal-spending" step="0.01" min="0" /></label>
+              <label>Money made ($)<input type="number" id="journal-income" step="0.01" min="0" /></label>
+            </div>
+            <footer class="flex-between">
+              <p class="muted">Entries feed the insights calendar, mood plot, and finance summary.</p>
+              <button id="save-journal">Save daily log</button>
+            </footer>
           </article>
         </section>
       </section>
