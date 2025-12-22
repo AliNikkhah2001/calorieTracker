@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from typing import Any, Dict
+
+from fastapi import HTTPException
+from pydantic import BaseModel, Field
 import reflex as rx
 
 from .state import AppState
@@ -9,6 +13,11 @@ from . import services
 EXERCISE_TYPES = list(services.MET_VALUES.keys())
 ACTIVITY_LEVELS = list(services.ACTIVITY_MULTIPLIERS.keys())
 GENDERS = ["Male", "Female"]
+
+
+class SyncPayload(BaseModel):
+    username: str = Field(min_length=1, description="Username from the local app state")
+    state: Dict[str, Any]
 
 
 def card(*children, **kwargs) -> rx.Component:
@@ -537,3 +546,28 @@ def index() -> rx.Component:
 
 app = rx.App(_state=AppState)
 app.add_page(index, title="Weight Tracker")
+
+
+@app.api.post("/api/sync-state")
+async def sync_state(payload: SyncPayload):
+    try:
+        result = services.save_synced_state(username=payload.username, state=payload.state)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    return {
+        "username": result.username,
+        "state": result.state,
+        "updated_at": result.updated_at,
+    }
+
+
+@app.api.get("/api/sync-state/{username}")
+async def load_state(username: str):
+    record = services.load_synced_state(username)
+    if not record:
+        raise HTTPException(status_code=404, detail="State not found")
+    return {
+        "username": record.username,
+        "state": record.state,
+        "updated_at": record.updated_at,
+    }

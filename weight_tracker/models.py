@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from datetime import datetime, date, time
-from typing import List, Optional
+from typing import Dict, List, Optional
 
-from sqlalchemy import Date, DateTime, Float, ForeignKey, Integer, String, Time, UniqueConstraint
+from sqlalchemy import JSON, Date, DateTime, Float, ForeignKey, Integer, String, Time, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base
@@ -101,3 +101,12 @@ class WeightEntry(Base):
     weight: Mapped[float] = mapped_column(Float, nullable=False)
 
     user: Mapped[User] = relationship(back_populates="weight_logs")
+
+
+class SyncedState(Base):
+    __tablename__ = "synced_states"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False, index=True)
+    state: Mapped[Dict] = mapped_column(JSON, default=dict)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
