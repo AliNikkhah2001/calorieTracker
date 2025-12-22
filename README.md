@@ -65,3 +65,20 @@ data/app.db           # Created on first Reflex run (add your own CSV seeds to d
 ```
 
 Run `python3 -m py_compile weight_tracker/*.py rxconfig.py` if you want a quick syntax check before starting the Reflex dev server.
+
+## Syncing local (static app) state to the backend
+
+You can send the static app’s local state (including the username) to the Reflex backend so it is stored in SQLite. The app exposes two API endpoints when the Reflex server is running:
+
+- `POST /api/sync-state` – upsert a user’s serialized state
+- `GET /api/sync-state/{username}` – fetch the last synced state
+
+Example `curl` to push browser state:
+
+```bash
+curl -X POST http://localhost:8765/api/sync-state \
+  -H "Content-Type: application/json" \
+  -d '{"username": "alice", "state": {"profile": {"name": "Alice"}, "foods": []}}'
+```
+
+This saves the username and JSON payload to `data/app.db` in the new `synced_states` table so you can align the GitHub Pages/localStorage data with the remote database.
