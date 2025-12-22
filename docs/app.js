@@ -1,4 +1,5 @@
 const STORAGE_KEY = 'calorie-tracker-state-v3';
+const DEFAULT_SYNC_ENDPOINT = 'http://localhost:8765';
 let calorieChart;
 let weightChart;
 let deficitChart;
@@ -36,6 +37,7 @@ function loadState() {
           },
         },
         onboarded: false,
+        sync: defaultSyncState(),
       });
     } catch (e) {
       console.error('Bad stored state', e);
@@ -58,6 +60,7 @@ function loadState() {
       },
     },
     onboarded: false,
+    sync: defaultSyncState(),
   });
 }
 
@@ -98,6 +101,15 @@ function defaultDetoxState() {
   };
 }
 
+function defaultSyncState() {
+  return {
+    endpoint: DEFAULT_SYNC_ENDPOINT,
+    lastSyncedAt: null,
+    lastStatus: '',
+    lastError: '',
+  };
+}
+
 function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
@@ -115,6 +127,7 @@ function ensureMigrations(parsed) {
   });
   if (!parsed.insightsMonth) parsed.insightsMonth = new Date().toISOString().slice(0, 7);
   if (parsed.onboarded === undefined) parsed.onboarded = false;
+  if (!parsed.sync) parsed.sync = defaultSyncState();
   return parsed;
 }
 
@@ -131,6 +144,7 @@ async function init() {
   bindDetoxControls();
   bindJournalControls();
   bindCalendarControls();
+  bindSyncControls();
   document.getElementById('log-date').value = new Date().toISOString().slice(0, 10);
   await loadCatalog();
   renderAll();
@@ -255,6 +269,118 @@ function bindUserControls() {
   });
 
   refresh();
+}
+
+function bindSyncControls() {
+  const endpointInput = document.getElementById('sync-endpoint');
+  const syncBtn = document.getElementById('sync-now');
+  const fetchBtn = document.getElementById('fetch-remote');
+  const statusEl = document.getElementById('sync-status');
+
+  if (!endpointInput || !syncBtn || !fetchBtn || !statusEl) return;
+
+  endpointInput.value = state.sync.endpoint;
+
+  const renderStatus = () => {
+    if (state.sync.lastError) {
+      statusEl.textContent = `Last error: ${state.sync.lastError}`;
+      statusEl.dataset.status = 'error';
+      return;
+    }
+    if (state.sync.lastSyncedAt) {
+      statusEl.textContent = `Last synced at ${state.sync.lastSyncedAt} — ${state.sync.lastStatus || 'OK'}`;
+      statusEl.dataset.status = 'ok';
+    } else {
+      statusEl.textContent = 'Not synced yet';
+      statusEl.dataset.status = 'idle';
+    }
+  };
+
+  endpointInput.addEventListener('change', () => {
+    state.sync.endpoint = endpointInput.value || DEFAULT_SYNC_ENDPOINT;
+    saveState();
+  });
+
+  syncBtn.addEventListener('click', async () => {
+    await syncToBackend();
+    renderStatus();
+  });
+
+  fetchBtn.addEventListener('click', async () => {
+    await fetchFromBackend();
+    renderStatus();
+    renderAll();
+  });
+
+  renderStatus();
+}
+
+async function syncToBackend() {
+  const user = getUser();
+  const endpoint = (state.sync.endpoint || DEFAULT_SYNC_ENDPOINT).replace(/\/$/, '');
+  if (!endpoint) return;
+  try {
+    const res = await fetch(`${endpoint}/api/sync-state`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: user.profile.name || 'default',
+        state: {
+          user,
+          activeUserId: state.activeUserId,
+          insightsMonth: state.insightsMonth,
+        },
+      }),
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const payload = await res.json();
+    state.sync.lastSyncedAt = new Date().toISOString();
+    state.sync.lastStatus = `Synced ${payload.username}`;
+    state.sync.lastError = '';
+    saveState();
+  } catch (err) {
+    console.error('Sync failed', err);
+    state.sync.lastError = err?.message || 'Sync failed';
+    saveState();
+  }
+}
+
+async function fetchFromBackend() {
+  const user = getUser();
+  const endpoint = (state.sync.endpoint || DEFAULT_SYNC_ENDPOINT).replace(/\/$/, '');
+  if (!endpoint) return;
+  try {
+    const res = await fetch(`${endpoint}/api/sync-state/${encodeURIComponent(user.profile.name || 'default')}`);
+    if (!res.ok) throw new Error(await res.text());
+    const payload = await res.json();
+    if (payload.state?.user) {
+      state.users[state.activeUserId] = ensureUserShape(payload.state.user);
+      if (payload.state.insightsMonth) state.insightsMonth = payload.state.insightsMonth;
+      state.sync.lastStatus = `Fetched ${payload.username}`;
+      state.sync.lastError = '';
+      state.sync.lastSyncedAt = new Date().toISOString();
+      saveState();
+      renderAll();
+    }
+  } catch (err) {
+    console.error('Fetch failed', err);
+    state.sync.lastError = err?.message || 'Fetch failed';
+    saveState();
+  }
+}
+
+function ensureUserShape(user) {
+  return {
+    profile: { ...defaultProfile(), ...user.profile },
+    foods: user.foods || [],
+    exercises: user.exercises || [],
+    weights: user.weights || [],
+    detox: { ...defaultDetoxState(), ...user.detox, daily: user.detox?.daily || [] },
+    savedFoods: user.savedFoods || [],
+    recentFoods: user.recentFoods || [],
+    fitness: user.fitness || defaultFitnessState(),
+    journal: user.journal || [],
+  };
 }
 
 function bindProfileForm() {
@@ -651,6 +777,24 @@ function renderAll() {
   renderInsights();
   renderFitness();
   renderJournalForm();
+  renderSyncStatus();
+}
+
+function renderSyncStatus() {
+  const statusEl = document.getElementById('sync-status');
+  if (!statusEl) return;
+  if (state.sync.lastError) {
+    statusEl.textContent = `Last error: ${state.sync.lastError}`;
+    statusEl.dataset.status = 'error';
+    return;
+  }
+  if (state.sync.lastSyncedAt) {
+    statusEl.textContent = `Last synced at ${state.sync.lastSyncedAt} — ${state.sync.lastStatus || 'OK'}`;
+    statusEl.dataset.status = 'ok';
+  } else {
+    statusEl.textContent = 'Not synced yet';
+    statusEl.dataset.status = 'idle';
+  }
 }
 
 function renderProfileMetrics() {

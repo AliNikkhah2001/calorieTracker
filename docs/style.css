@@ -478,3 +478,15 @@ header h1 {
 footer small {
   color: #94a3b8;
 }
+.sync-card {
+  display: grid;
+  gap: 0.5rem;
+}
+
+#sync-status[data-status='error'] {
+  color: #b91c1c;
+}
+
+#sync-status[data-status='ok'] {
+  color: #166534;
+}

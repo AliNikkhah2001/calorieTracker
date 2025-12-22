@@ -82,3 +82,12 @@ curl -X POST http://localhost:8765/api/sync-state \
 ```
 
 This saves the username and JSON payload to `data/app.db` in the new `synced_states` table so you can align the GitHub Pages/localStorage data with the remote database.
+
+### Automating sync with GitHub Actions
+
+A scheduled workflow (`.github/workflows/sync.yml`) runs daily at 03:00 UTC (and on demand). Configure two secrets:
+
+- `SYNC_ENDPOINT` – your deployed Reflex backend (e.g., `https://example.com`)
+- `SYNC_USERNAME` – the username to sync
+
+The workflow calls `scripts/run_sync.py` to post a minimal payload to `/api/sync-state`. Extend the script to include richer state if desired.
