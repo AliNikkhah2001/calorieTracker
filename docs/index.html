@@ -506,6 +506,22 @@
             </footer>
           </form>
           <div id="profile-metrics" class="metric-card"></div>
+          <article class="subcard sync-card">
+            <header class="flex-between">
+              <div>
+                <h3>Sync with backend</h3>
+                <p class="muted small">Push or fetch local data (stored in your browser) to the Reflex API.</p>
+              </div>
+            </header>
+            <label>API endpoint
+              <input type="url" id="sync-endpoint" placeholder="http://localhost:8765" />
+            </label>
+            <div class="grid compact">
+              <button type="button" id="sync-now" class="secondary">Sync now</button>
+              <button type="button" id="fetch-remote" class="secondary">Fetch from backend</button>
+            </div>
+            <small id="sync-status" class="muted">Not synced yet</small>
+          </article>
         </article>
       </section>
     </main>
