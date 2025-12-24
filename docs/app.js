@@ -181,9 +181,16 @@ function bindNavToggle() {
   const toggle = document.getElementById('nav-toggle');
   const navLinks = document.getElementById('nav-links');
   if (!toggle || !navLinks) return;
-  toggle.addEventListener('click', () => {
+  toggle.addEventListener('click', (event) => {
+    event.stopPropagation();
     navLinks.classList.toggle('open');
   });
+  document.addEventListener('click', (event) => {
+    const clickedToggle = toggle.contains(event.target);
+    const clickedNav = navLinks.contains(event.target);
+    if (!clickedToggle && !clickedNav) navLinks.classList.remove('open');
+  });
+  window.addEventListener('resize', () => navLinks.classList.remove('open'));
 }
 
 function bindIntakeTabs() {
