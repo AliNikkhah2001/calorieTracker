@@ -1,5 +1,5 @@
 // Bump the cache name to ensure clients pick up the refreshed bundle when redeployed.
-const CACHE_NAME = 'calorie-tracker-v3';
+const CACHE_NAME = 'calorie-tracker-v4';
 const ASSETS = [
   './',
   './index.html',
@@ -8,6 +8,7 @@ const ASSETS = [
   './data.json',
   './manifest.webmanifest',
   './icon.svg',
+  './icon-180.png',
   'https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css',
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js'
 ];

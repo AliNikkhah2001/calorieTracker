@@ -2,12 +2,14 @@
 <html lang="en" data-theme="light">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#0f172a" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Calorie Tracker" />
     <title>Calorie & Weight Tracker</title>
     <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="icon-180.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -72,6 +74,22 @@
               <canvas class="chart" id="calorie-line" height="220"></canvas>
             </div>
           </div>
+          <div class="chart-row responsive-stack">
+            <div class="chart-box calendar-box">
+              <div class="chart-title calendar-title">
+                <button id="calendar-prev" class="ghost" aria-label="Previous month">&larr;</button>
+                <span id="calendar-month"></span>
+                <button id="calendar-next" class="ghost" aria-label="Next month">&rarr;</button>
+              </div>
+              <p class="muted small">Colors reflect logged weight—lighter greens for lower weights and reds for higher.</p>
+              <div class="calendar-grid" id="weight-calendar"></div>
+            </div>
+            <div class="chart-box">
+              <div class="chart-title">Mood &amp; money</div>
+              <canvas class="chart" id="mood-chart" height="220"></canvas>
+              <div id="finance-summary" class="metric-grid"></div>
+            </div>
+          </div>
           <div class="metric-grid" id="snapshot-metrics"></div>
         </article>
 
@@ -125,6 +143,26 @@
               <div class="chart-title">Actual vs predicted</div>
               <canvas class="chart" id="weight-chart" height="220"></canvas>
             </div>
+          </article>
+          <article class="card" id="journal-form">
+            <header class="flex-between">
+              <div>
+                <h2>Daily wellbeing</h2>
+                <p class="muted">Log meds, mood, finances, and optional weight for any date.</p>
+              </div>
+              <label>Date<input type="date" id="journal-date" /></label>
+            </header>
+            <div class="grid compact">
+              <label>Weight (kg)<input type="number" id="journal-weight" step="0.1" data-weight-input /></label>
+              <label>Mood (1–5)<input type="number" id="journal-mood" min="1" max="5" /></label>
+              <label>Medications<input type="text" id="journal-meds" placeholder="e.g., Vitamin D, ibuprofen" /></label>
+              <label>Spending today ($)<input type="number" id="journal-spending" step="0.01" min="0" /></label>
+              <label>Money made ($)<input type="number" id="journal-income" step="0.01" min="0" /></label>
+            </div>
+            <footer class="flex-between">
+              <p class="muted">Entries feed the insights calendar, mood plot, and finance summary.</p>
+              <button id="save-journal">Save daily log</button>
+            </footer>
           </article>
         </section>
       </section>
@@ -470,6 +508,22 @@
             </footer>
           </form>
           <div id="profile-metrics" class="metric-card"></div>
+          <article class="subcard sync-card">
+            <header class="flex-between">
+              <div>
+                <h3>Sync with backend</h3>
+                <p class="muted small">Push or fetch local data (stored in your browser) to the Reflex API.</p>
+              </div>
+            </header>
+            <label>API endpoint
+              <input type="url" id="sync-endpoint" placeholder="http://localhost:8765" />
+            </label>
+            <div class="grid compact">
+              <button type="button" id="sync-now" class="secondary">Sync now</button>
+              <button type="button" id="fetch-remote" class="secondary">Fetch from backend</button>
+            </div>
+            <small id="sync-status" class="muted">Not synced yet</small>
+          </article>
         </article>
       </section>
     </main>

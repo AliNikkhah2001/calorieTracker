@@ -6,7 +6,7 @@ import secrets
 from dataclasses import dataclass
 from datetime import date, datetime, time
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence
 
 from sqlalchemy import func, or_, select
 from sqlalchemy.exc import IntegrityError
@@ -58,6 +58,12 @@ class DailySummary:
 @dataclass
 class WeightHistory:
     entries: List[Dict]
+
+@dataclass
+class SyncedStateDTO:
+    username: str
+    state: Dict[str, Any]
+    updated_at: str
 
 
 MET_VALUES = {
@@ -361,6 +367,35 @@ def get_weight_history(user_id: int) -> WeightHistory:
         stmt = select(models.WeightEntry).where(models.WeightEntry.user_id == user_id).order_by(models.WeightEntry.date.asc())
         entries = session.scalars(stmt).all()
     return WeightHistory(entries=[{"date": entry.date.isoformat(), "weight": entry.weight} for entry in entries])
+
+
+def save_synced_state(*, username: str, state: Dict[str, Any]) -> SyncedStateDTO:
+    username = username.strip().lower()
+    if not username:
+        raise ValueError("Username is required")
+    with get_session() as session:
+        existing = session.scalar(select(models.SyncedState).where(models.SyncedState.username == username))
+        now = datetime.utcnow()
+        if existing:
+            existing.state = state
+            existing.updated_at = now
+            record = existing
+        else:
+            record = models.SyncedState(username=username, state=state, updated_at=now)
+            session.add(record)
+        session.flush()
+        return SyncedStateDTO(username=record.username, state=record.state, updated_at=record.updated_at.isoformat())
+
+
+def load_synced_state(username: str) -> Optional[SyncedStateDTO]:
+    username = username.strip().lower()
+    if not username:
+        return None
+    with get_session() as session:
+        record = session.scalar(select(models.SyncedState).where(models.SyncedState.username == username))
+        if not record:
+            return None
+        return SyncedStateDTO(username=record.username, state=record.state, updated_at=record.updated_at.isoformat())
 
 
 def seed_food_items() -> None:

@@ -1,4 +1,5 @@
 const STORAGE_KEY = 'calorie-tracker-state-v3';
+const DEFAULT_SYNC_ENDPOINT = 'http://localhost:8765';
 let calorieChart;
 let weightChart;
 let deficitChart;
@@ -7,6 +8,7 @@ let pieChart;
 let detoxChart;
 let strengthChart;
 let insightChart;
+let wellnessChart;
 let catalogs = { foods: [], activities: [] };
 
 let state = loadState();
@@ -35,6 +37,7 @@ function loadState() {
           },
         },
         onboarded: false,
+        sync: defaultSyncState(),
       });
     } catch (e) {
       console.error('Bad stored state', e);
@@ -42,6 +45,7 @@ function loadState() {
   }
   return ensureMigrations({
     activeUserId: 'default',
+    insightsMonth: new Date().toISOString().slice(0, 7),
     users: {
       default: {
         profile: defaultProfile(),
@@ -52,9 +56,11 @@ function loadState() {
         savedFoods: [],
         recentFoods: [],
         fitness: defaultFitnessState(),
+        journal: [],
       },
     },
     onboarded: false,
+    sync: defaultSyncState(),
   });
 }
 
@@ -95,6 +101,15 @@ function defaultDetoxState() {
   };
 }
 
+function defaultSyncState() {
+  return {
+    endpoint: DEFAULT_SYNC_ENDPOINT,
+    lastSyncedAt: null,
+    lastStatus: '',
+    lastError: '',
+  };
+}
+
 function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
@@ -108,8 +123,11 @@ function ensureMigrations(parsed) {
     user.savedFoods = user.savedFoods || [];
     user.recentFoods = user.recentFoods || [];
     user.fitness = user.fitness || defaultFitnessState();
+    user.journal = user.journal || [];
   });
+  if (!parsed.insightsMonth) parsed.insightsMonth = new Date().toISOString().slice(0, 7);
   if (parsed.onboarded === undefined) parsed.onboarded = false;
+  if (!parsed.sync) parsed.sync = defaultSyncState();
   return parsed;
 }
 
@@ -124,6 +142,9 @@ async function init() {
   bindWeightControls();
   bindNavToggle();
   bindDetoxControls();
+  bindJournalControls();
+  bindCalendarControls();
+  bindSyncControls();
   document.getElementById('log-date').value = new Date().toISOString().slice(0, 10);
   await loadCatalog();
   renderAll();
@@ -160,9 +181,16 @@ function bindNavToggle() {
   const toggle = document.getElementById('nav-toggle');
   const navLinks = document.getElementById('nav-links');
   if (!toggle || !navLinks) return;
-  toggle.addEventListener('click', () => {
+  toggle.addEventListener('click', (event) => {
+    event.stopPropagation();
     navLinks.classList.toggle('open');
   });
+  document.addEventListener('click', (event) => {
+    const clickedToggle = toggle.contains(event.target);
+    const clickedNav = navLinks.contains(event.target);
+    if (!clickedToggle && !clickedNav) navLinks.classList.remove('open');
+  });
+  window.addEventListener('resize', () => navLinks.classList.remove('open'));
 }
 
 function bindIntakeTabs() {
@@ -232,6 +260,7 @@ function bindUserControls() {
       savedFoods: [],
       recentFoods: [],
       fitness: defaultFitnessState(),
+      journal: [],
     };
     state.activeUserId = id;
     saveState();
@@ -247,6 +276,118 @@ function bindUserControls() {
   });
 
   refresh();
+}
+
+function bindSyncControls() {
+  const endpointInput = document.getElementById('sync-endpoint');
+  const syncBtn = document.getElementById('sync-now');
+  const fetchBtn = document.getElementById('fetch-remote');
+  const statusEl = document.getElementById('sync-status');
+
+  if (!endpointInput || !syncBtn || !fetchBtn || !statusEl) return;
+
+  endpointInput.value = state.sync.endpoint;
+
+  const renderStatus = () => {
+    if (state.sync.lastError) {
+      statusEl.textContent = `Last error: ${state.sync.lastError}`;
+      statusEl.dataset.status = 'error';
+      return;
+    }
+    if (state.sync.lastSyncedAt) {
+      statusEl.textContent = `Last synced at ${state.sync.lastSyncedAt} — ${state.sync.lastStatus || 'OK'}`;
+      statusEl.dataset.status = 'ok';
+    } else {
+      statusEl.textContent = 'Not synced yet';
+      statusEl.dataset.status = 'idle';
+    }
+  };
+
+  endpointInput.addEventListener('change', () => {
+    state.sync.endpoint = endpointInput.value || DEFAULT_SYNC_ENDPOINT;
+    saveState();
+  });
+
+  syncBtn.addEventListener('click', async () => {
+    await syncToBackend();
+    renderStatus();
+  });
+
+  fetchBtn.addEventListener('click', async () => {
+    await fetchFromBackend();
+    renderStatus();
+    renderAll();
+  });
+
+  renderStatus();
+}
+
+async function syncToBackend() {
+  const user = getUser();
+  const endpoint = (state.sync.endpoint || DEFAULT_SYNC_ENDPOINT).replace(/\/$/, '');
+  if (!endpoint) return;
+  try {
+    const res = await fetch(`${endpoint}/api/sync-state`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: user.profile.name || 'default',
+        state: {
+          user,
+          activeUserId: state.activeUserId,
+          insightsMonth: state.insightsMonth,
+        },
+      }),
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const payload = await res.json();
+    state.sync.lastSyncedAt = new Date().toISOString();
+    state.sync.lastStatus = `Synced ${payload.username}`;
+    state.sync.lastError = '';
+    saveState();
+  } catch (err) {
+    console.error('Sync failed', err);
+    state.sync.lastError = err?.message || 'Sync failed';
+    saveState();
+  }
+}
+
+async function fetchFromBackend() {
+  const user = getUser();
+  const endpoint = (state.sync.endpoint || DEFAULT_SYNC_ENDPOINT).replace(/\/$/, '');
+  if (!endpoint) return;
+  try {
+    const res = await fetch(`${endpoint}/api/sync-state/${encodeURIComponent(user.profile.name || 'default')}`);
+    if (!res.ok) throw new Error(await res.text());
+    const payload = await res.json();
+    if (payload.state?.user) {
+      state.users[state.activeUserId] = ensureUserShape(payload.state.user);
+      if (payload.state.insightsMonth) state.insightsMonth = payload.state.insightsMonth;
+      state.sync.lastStatus = `Fetched ${payload.username}`;
+      state.sync.lastError = '';
+      state.sync.lastSyncedAt = new Date().toISOString();
+      saveState();
+      renderAll();
+    }
+  } catch (err) {
+    console.error('Fetch failed', err);
+    state.sync.lastError = err?.message || 'Fetch failed';
+    saveState();
+  }
+}
+
+function ensureUserShape(user) {
+  return {
+    profile: { ...defaultProfile(), ...user.profile },
+    foods: user.foods || [],
+    exercises: user.exercises || [],
+    weights: user.weights || [],
+    detox: { ...defaultDetoxState(), ...user.detox, daily: user.detox?.daily || [] },
+    savedFoods: user.savedFoods || [],
+    recentFoods: user.recentFoods || [],
+    fitness: user.fitness || defaultFitnessState(),
+    journal: user.journal || [],
+  };
 }
 
 function bindProfileForm() {
@@ -483,6 +624,72 @@ function bindDetoxControls() {
   });
 }
 
+function bindJournalControls() {
+  const form = document.getElementById('journal-form');
+  const dateInput = document.getElementById('journal-date');
+  if (!form || !dateInput) return;
+
+  const syncDate = () => {
+    const logDate = document.getElementById('log-date').value;
+    if (!dateInput.value || !dateInput.matches(':focus')) dateInput.value = logDate;
+  };
+
+  syncDate();
+
+  dateInput.addEventListener('change', renderJournalForm);
+  document.getElementById('log-date').addEventListener('change', () => {
+    syncDate();
+    renderJournalForm();
+  });
+
+  document.getElementById('save-journal').addEventListener('click', () => {
+    const u = getUser();
+    const date = dateInput.value || document.getElementById('log-date').value;
+    const moodVal = parseInt(document.getElementById('journal-mood').value, 10);
+    const medications = document.getElementById('journal-meds').value.trim();
+    const spending = parseFloat(document.getElementById('journal-spending').value) || 0;
+    const income = parseFloat(document.getElementById('journal-income').value) || 0;
+    const weightInput = parseFloat(document.getElementById('journal-weight').value);
+
+    const existing = getJournalEntry(date) || { date };
+    existing.mood = Number.isFinite(moodVal) ? moodVal : null;
+    existing.medications = medications;
+    existing.spending = spending;
+    existing.income = income;
+
+    u.journal = u.journal.filter((j) => j.date !== date);
+    u.journal.push(existing);
+
+    if (Number.isFinite(weightInput) && weightInput > 0) {
+      u.weights = u.weights.filter((w) => w.date !== date);
+      u.weights.push({ date, weight: weightInput });
+      u.weights.sort((a, b) => a.date.localeCompare(b.date));
+      u.profile.weight = weightInput;
+      if (!u.profile.initialWeight) u.profile.initialWeight = weightInput;
+    }
+
+    saveState();
+    renderAll();
+  });
+}
+
+function bindCalendarControls() {
+  const prev = document.getElementById('calendar-prev');
+  const next = document.getElementById('calendar-next');
+  if (!prev || !next) return;
+
+  const shiftMonth = (delta) => {
+    const current = new Date(`${state.insightsMonth}-01T00:00:00`);
+    current.setMonth(current.getMonth() + delta);
+    state.insightsMonth = current.toISOString().slice(0, 7);
+    saveState();
+    renderWeightCalendar();
+  };
+
+  prev.addEventListener('click', () => shiftMonth(-1));
+  next.addEventListener('click', () => shiftMonth(1));
+}
+
 function populateFoodSelect() {
   const select = document.getElementById('food-select');
   select.innerHTML = '';
@@ -576,6 +783,25 @@ function renderAll() {
   renderDetoxStats();
   renderInsights();
   renderFitness();
+  renderJournalForm();
+  renderSyncStatus();
+}
+
+function renderSyncStatus() {
+  const statusEl = document.getElementById('sync-status');
+  if (!statusEl) return;
+  if (state.sync.lastError) {
+    statusEl.textContent = `Last error: ${state.sync.lastError}`;
+    statusEl.dataset.status = 'error';
+    return;
+  }
+  if (state.sync.lastSyncedAt) {
+    statusEl.textContent = `Last synced at ${state.sync.lastSyncedAt} — ${state.sync.lastStatus || 'OK'}`;
+    statusEl.dataset.status = 'ok';
+  } else {
+    statusEl.textContent = 'Not synced yet';
+    statusEl.dataset.status = 'idle';
+  }
 }
 
 function renderProfileMetrics() {
@@ -723,6 +949,9 @@ function renderInsights() {
   `;
 
   renderInsightCharts(weightTrend);
+  renderFinanceSummary();
+  renderWeightCalendar();
+  renderMoodChart();
 }
 
 function averageDeficit(days) {
@@ -765,6 +994,189 @@ function renderInsightCharts(weightTrend) {
   });
 
   drawDeficitTrend();
+}
+
+function getJournalEntry(date) {
+  const u = getUser();
+  return u.journal.find((j) => j.date === date);
+}
+
+function renderJournalForm() {
+  const dateInput = document.getElementById('journal-date');
+  if (!dateInput) return;
+  if (!dateInput.value) dateInput.value = document.getElementById('log-date').value;
+  const date = dateInput.value;
+  const entry = getJournalEntry(date);
+
+  const moodInput = document.getElementById('journal-mood');
+  const medInput = document.getElementById('journal-meds');
+  const spendInput = document.getElementById('journal-spending');
+  const incomeInput = document.getElementById('journal-income');
+  const weightInput = document.getElementById('journal-weight');
+
+  if (moodInput && !moodInput.matches(':focus')) moodInput.value = entry?.mood ?? '';
+  if (medInput && !medInput.matches(':focus')) medInput.value = entry?.medications ?? '';
+  if (spendInput && !spendInput.matches(':focus')) spendInput.value = entry?.spending ?? '';
+  if (incomeInput && !incomeInput.matches(':focus')) incomeInput.value = entry?.income ?? '';
+  if (weightInput && !weightInput.matches(':focus')) {
+    weightInput.value = '';
+    const weightForDate = getWeightForDate(date);
+    weightInput.placeholder = weightForDate ? `Current: ${weightForDate.toFixed(1)} kg` : 'Add weight';
+  }
+}
+
+function renderFinanceSummary() {
+  const container = document.getElementById('finance-summary');
+  if (!container) return;
+  const entries = [...getUser().journal].sort((a, b) => a.date.localeCompare(b.date));
+  if (!entries.length) {
+    container.innerHTML = '<p class="muted">Log spending or income to see daily money insights.</p>';
+    return;
+  }
+
+  const windowStart = new Date();
+  windowStart.setDate(windowStart.getDate() - 30);
+  const windowEntries = entries.filter((e) => new Date(e.date) >= windowStart);
+  const totals = windowEntries.reduce(
+    (acc, e) => {
+      acc.spending += e.spending || 0;
+      acc.income += e.income || 0;
+      if (Number.isFinite(e.mood)) acc.moods.push(e.mood);
+      return acc;
+    },
+    { spending: 0, income: 0, moods: [] }
+  );
+  const net = totals.income - totals.spending;
+  const avgMood = totals.moods.length ? totals.moods.reduce((a, b) => a + b, 0) / totals.moods.length : null;
+  const lastMood = entries.filter((e) => Number.isFinite(e.mood)).slice(-1)[0]?.mood ?? null;
+
+  container.innerHTML = `
+    <div class="metric"><div>Spent (30d)</div><div class="bold-metric">$${totals.spending.toFixed(2)}</div></div>
+    <div class="metric"><div>Money made (30d)</div><div class="bold-metric">$${totals.income.toFixed(2)}</div></div>
+    <div class="metric"><div>Net (30d)</div><div class="bold-metric ${net >= 0 ? 'positive' : 'negative'}">$${net.toFixed(2)}</div></div>
+    <div class="metric"><div>Mood</div><div class="bold-metric">${lastMood ? `${lastMood}/5 latest` : '—'}</div><small class="muted">${
+    avgMood ? `Avg ${avgMood.toFixed(1)} past 30 days` : 'No mood logs yet'
+  }</small></div>
+  `;
+}
+
+function renderWeightCalendar() {
+  const grid = document.getElementById('weight-calendar');
+  const monthLabel = document.getElementById('calendar-month');
+  if (!grid || !monthLabel) return;
+
+  const base = new Date(`${state.insightsMonth}-01T00:00:00`);
+  if (Number.isNaN(base.getTime())) return;
+
+  monthLabel.textContent = base.toLocaleString(undefined, { month: 'long', year: 'numeric' });
+  grid.innerHTML = '';
+
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  dayNames.forEach((name) => {
+    const label = document.createElement('div');
+    label.className = 'calendar-cell calendar-label';
+    label.textContent = name;
+    grid.appendChild(label);
+  });
+
+  const startDay = base.getDay();
+  const daysInMonth = new Date(base.getFullYear(), base.getMonth() + 1, 0).getDate();
+
+  for (let i = 0; i < startDay; i += 1) {
+    const spacer = document.createElement('div');
+    spacer.className = 'calendar-cell empty';
+    grid.appendChild(spacer);
+  }
+
+  const user = getUser();
+  const weightValues = user.weights.length ? user.weights.map((w) => w.weight) : [user.profile.weight];
+  const minWeight = Math.min(...weightValues);
+  const maxWeight = Math.max(...weightValues);
+
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    const dateStr = `${base.getFullYear()}-${String(base.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const weightEntry = user.weights.find((w) => w.date === dateStr);
+    const weight = weightEntry?.weight;
+    const cell = document.createElement('div');
+    cell.className = 'calendar-cell day-cell';
+    cell.style.background = weight ? weightToColor(weight, minWeight, maxWeight) : '#e5e7eb';
+    cell.innerHTML = `
+      <span class="day-number">${day}</span>
+      <span class="day-weight">${weight ? `${weight.toFixed(1)} kg` : '—'}</span>
+    `;
+    cell.title = weight ? `${dateStr}: ${weight.toFixed(1)} kg` : `${dateStr}: no weight logged`;
+    grid.appendChild(cell);
+  }
+}
+
+function weightToColor(weight, minWeight, maxWeight) {
+  const range = Math.max(maxWeight - minWeight, 0.01);
+  const ratio = Math.min(1, Math.max(0, (weight - minWeight) / range));
+  const mid = 0.5;
+  if (ratio <= mid) return interpolateColor('#22c55e', '#facc15', ratio / mid);
+  return interpolateColor('#facc15', '#ef4444', (ratio - mid) / (1 - mid));
+}
+
+function interpolateColor(start, end, t) {
+  const s = start.replace('#', '');
+  const e = end.replace('#', '');
+  const sr = parseInt(s.slice(0, 2), 16);
+  const sg = parseInt(s.slice(2, 4), 16);
+  const sb = parseInt(s.slice(4, 6), 16);
+  const er = parseInt(e.slice(0, 2), 16);
+  const eg = parseInt(e.slice(2, 4), 16);
+  const eb = parseInt(e.slice(4, 6), 16);
+  const r = Math.round(sr + (er - sr) * t);
+  const g = Math.round(sg + (eg - sg) * t);
+  const b = Math.round(sb + (eb - sb) * t);
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
+function renderMoodChart() {
+  const ctx = document.getElementById('mood-chart');
+  if (!ctx) return;
+  const entries = [...getUser().journal].sort((a, b) => a.date.localeCompare(b.date)).slice(-30);
+  if (!entries.length) {
+    if (wellnessChart) wellnessChart.destroy();
+    return;
+  }
+  const labels = entries.map((e) => e.date);
+  const moods = entries.map((e) => (Number.isFinite(e.mood) ? e.mood : null));
+  const net = entries.map((e) => (e.income || 0) - (e.spending || 0));
+
+  if (wellnessChart) wellnessChart.destroy();
+  wellnessChart = new Chart(ctx, {
+    data: {
+      labels,
+      datasets: [
+        {
+          type: 'line',
+          label: 'Mood (1-5)',
+          data: moods,
+          borderColor: '#8b5cf6',
+          backgroundColor: 'rgba(139, 92, 246, 0.15)',
+          tension: 0.25,
+          yAxisID: 'mood',
+          spanGaps: true,
+        },
+        {
+          type: 'bar',
+          label: 'Net money',
+          data: net,
+          backgroundColor: net.map((v) => (v >= 0 ? '#22c55e' : '#ef4444')),
+          yAxisID: 'money',
+          borderRadius: 6,
+        },
+      ],
+    },
+    options: {
+      plugins: { legend: { position: 'bottom' } },
+      scales: {
+        mood: { min: 0, max: 5, position: 'left', title: { display: true, text: 'Mood' } },
+        money: { position: 'right', title: { display: true, text: 'Net ($)' } },
+      },
+    },
+  });
 }
 
 function renderWeightTable() {
