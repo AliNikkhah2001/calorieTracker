@@ -1,0 +1,35 @@
+name: Responsive UI Check
+
+on:
+  push:
+    branches: [production, development]
+  pull_request:
+    branches: [production, development]
+
+jobs:
+  responsiveness:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run responsive check
+        run: npm run test:responsive
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: responsive-screens
+          path: artifacts/

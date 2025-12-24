@@ -1,0 +1,11 @@
+{
+  "name": "calorie-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test:responsive": "node scripts/responsiveness-check.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.57.0"
+  }
+}

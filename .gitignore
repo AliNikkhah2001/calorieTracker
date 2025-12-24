@@ -7,3 +7,5 @@ assets/external/
 .web
 data/*
 !data/.gitkeep
+node_modules/
+artifacts/
